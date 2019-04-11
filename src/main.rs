@@ -27,7 +27,24 @@ impl Direction {
 
 type Position = i32;
 
-type Percent = i32;
+#[derive(Clone, Copy)]
+struct JumpProgress { value: Option<i32> }
+
+impl JumpProgress {
+    fn y(self) -> Position {
+        let jum_height = 4;
+        self.value.map(|it| if it > 50 { 100 - it } else { it })
+            .unwrap_or(0) * jum_height
+    }
+
+    fn update(self, time_delta: Millis) -> Self {
+        Self {
+            value: self.value.and_then(|it| if it >= 100 { None } else {
+                Some(it + time_delta)
+            })
+        }
+    }
+}
 
 type Millis = i32;
 
@@ -35,7 +52,7 @@ struct State {
     direction: Option<Direction>,
     x: Position,
     y: Position,
-    jump_progress: Option<Percent>,
+    jump_progress: JumpProgress,
 }
 
 impl State {
@@ -52,22 +69,15 @@ impl State {
     }
 
     fn jump(self) -> Self {
-        State { jump_progress: Some(0), ..self }
+        State { jump_progress: JumpProgress { value: Some(0) }, ..self }
     }
 
     fn update(self, time_delta: Millis) -> Self {
         let x_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
-        let y = self.jump_progress
-            .map(|it| if it > 50 { 100 - it } else { it })
-            .unwrap_or(0);
-        let jum_height = 4;
         State {
             x: self.x + x_delta,
-            y: y * jum_height,
-            jump_progress: self.jump_progress
-                .and_then(|it| if it >= 100 { None } else {
-                    Some(it + time_delta)
-                }),
+            y: self.jump_progress.y(),
+            jump_progress: self.jump_progress.update(time_delta),
             ..self
         }
     }
@@ -105,7 +115,7 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state = State { direction: None, x: 0, y: 0, jump_progress: None };
+    let mut state = State { direction: None, x: 0, y: 0, jump_progress: JumpProgress { value: None } };
 
     'main: loop {
         for event in event_pump.poll_iter() {
