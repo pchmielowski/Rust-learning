@@ -79,7 +79,7 @@ fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut colors: [[u8; HEIGHT]; WIDTH] = [[0; HEIGHT]; WIDTH];
+    let mut colors = [[0; HEIGHT]; WIDTH];
 
     let mut time_info = (time::now(), 0, 0);
 
