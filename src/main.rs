@@ -19,15 +19,18 @@ fn random_color() -> u8 {
 const WIDTH: usize = 800;
 const HEIGHT: usize = 600;
 
-type Colors = [[u8; HEIGHT]; WIDTH];
+//fn create_colors() -> Colors { [[0; HEIGHT]; WIDTH] }
+fn create_colors() -> Colors { [0; WIDTH * HEIGHT] }
 
-fn get(colors: &Colors, x: usize, y: usize) -> u8 {
-    colors[x][y]
-}
+//type Colors = [[u8; HEIGHT]; WIDTH];
+type Colors = [u8; WIDTH * HEIGHT];
 
-fn set(colors: &mut Colors, x: usize, y: usize, value: u8) {
-    colors[x][y] = value;
-}
+//fn get(colors: &Colors, x: usize, y: usize) -> u8 { colors[x][y] }
+fn get(colors: &Colors, x: usize, y: usize) -> u8 { colors[x + WIDTH * y] }
+
+
+//fn set(colors: &mut Colors, x: usize, y: usize, value: u8) { colors[x][y] = value; }
+fn set(colors: &mut Colors, x: usize, y: usize, value: u8) { colors[x + WIDTH * y] = value; }
 
 fn recalculate_image(mut colors: &mut Colors) {
     for x in 0..WIDTH - 1 {
@@ -89,7 +92,7 @@ fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut colors = [[0; HEIGHT]; WIDTH];
+    let mut colors = create_colors();
 
     let mut time_info = (time::now(), 0, 0);
 
