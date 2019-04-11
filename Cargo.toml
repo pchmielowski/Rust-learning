@@ -1,0 +1,8 @@
+[package]
+name = "hello-rust"
+version = "0.1.0"
+authors = ["Piotr Chmielowski <piotrek.chmielowski@interia.pl>"]
+edition = "2018"
+
+[dependencies]
+sdl2 = "0.32"
