@@ -137,32 +137,24 @@ fn main() -> Result<(), String> {
                     break 'main;
                 }
                 Event::KeyDown { keycode, .. } => {
-                    match keycode {
-                        Some(Keycode::Left) => {
-                            state = state.go_backward();
-                        }
-                        Some(Keycode::Right) => {
-                            state = state.go_forward();
-                        }
-                        Some(Keycode::Space) => {
-                            state = state.jump();
-                        }
-                        _ => {}
+                    state = match keycode {
+                        Some(Keycode::Left) => state.go_backward(),
+                        Some(Keycode::Right) => state.go_forward(),
+                        Some(Keycode::Space) => state.jump(),
+                        _ => state
                     };
                 }
                 Event::KeyUp { keycode, .. } => {
-                    match keycode {
-                        Some(Keycode::Left) => {
+                    state = match keycode {
+                        Some(Keycode::Left) =>
                             if state.direction == Direction::Backward {
-                                state = state.stop();
-                            }
-                        }
-                        Some(Keycode::Right) => {
+                                state.stop()
+                            } else { state },
+                        Some(Keycode::Right) =>
                             if state.direction == Direction::Forward {
-                                state = state.stop();
-                            }
-                        }
-                        _ => {}
+                                state.stop()
+                            } else { state },
+                        _ => state
                     };
                 }
                 _ => {}
