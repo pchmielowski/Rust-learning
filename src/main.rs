@@ -23,19 +23,19 @@ struct State {
 
 impl State {
     fn go_forward(self) -> State {
-        State { direction: Some(Direction::Forward), position: self.position }
+        State { direction: Some(Direction::Forward), ..self }
     }
 
     fn go_backward(self) -> State {
-        State { direction: Some(Direction::Backward), position: self.position }
+        State { direction: Some(Direction::Backward), ..self }
     }
 
     fn stop(self) -> State {
-        State { direction: None, position: self.position }
+        State { direction: None, ..self }
     }
 
     fn move_by(self, delta: Position) -> State {
-        State { direction: self.direction, position: self.position + delta }
+        State { position: self.position + delta, ..self }
     }
 }
 
