@@ -73,7 +73,7 @@ impl State {
     }
 
     fn jump(self) -> Self {
-        State { jump_progress: JumpProgress { value: Some(0) }, ..self }
+        State { jump_progress: JumpProgress { value: self.jump_progress.value.or(Some(0)) }, ..self }
     }
 
     fn update(self, time_delta: Millis) -> Self {
