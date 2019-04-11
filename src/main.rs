@@ -7,6 +7,8 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
+use sdl2::video::Window;
+use sdl2::render::Canvas;
 
 fn random_color() -> u8 {
     rand::random::<u8>()
@@ -28,6 +30,19 @@ fn recalculate_image(colors: &mut [[u8; HEIGHT]; WIDTH]) {
             colors[x][y] = (sum / 4) as u8;
         }
     }
+}
+
+fn redraw_image(colors: &mut [[u8; HEIGHT]; WIDTH], canvas: &mut Canvas<Window>) {
+    canvas.set_draw_color(Color::RGB(0, 0, 0));
+    canvas.clear();
+    for x in 0..WIDTH - 1 {
+        for y in 0..HEIGHT - 1 {
+            let color = colors[x][y];
+            canvas.set_draw_color(Color::RGB(color, color, color));
+            canvas.draw_point(Point::new(x as i32, y as i32)).unwrap();
+        }
+    }
+    canvas.present();
 }
 
 fn main() -> Result<(), String> {
@@ -63,17 +78,8 @@ fn main() -> Result<(), String> {
 
         recalculate_image(&mut colors);
 
+        redraw_image(&mut colors, &mut canvas);
 
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.clear();
-        for x in 0..WIDTH - 1 {
-            for y in 0..HEIGHT - 1 {
-                let color = colors[x][y];
-                canvas.set_draw_color(Color::RGB(color, color, color));
-                canvas.draw_point(Point::new(x as i32, y as i32))?;
-            }
-        }
-        canvas.present();
         let now = time::now();
         let delta_time = now - time;
         sum_time += delta_time.num_milliseconds();
