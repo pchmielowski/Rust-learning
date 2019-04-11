@@ -80,15 +80,19 @@ fn should_quit(pump: &mut EventPump) -> bool {
 }
 
 fn setup_sdl() -> Result<(Canvas<Window>, EventPump), String> {
-    let sdl_context = sdl2::init()?;
-    let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem.window("Fire", WIDTH as u32, HEIGHT as u32)
+    let sdl = sdl2::init()?;
+    let window = sdl.video()?
+        .window("Fire", WIDTH as u32, HEIGHT as u32)
         .position_centered()
         .opengl()
         .build()
-        .map_err(|e| e.to_string())
-        .and_then(|window| window.into_canvas().build().map_err(|e| e.to_string()));
-    Ok((window?, sdl_context.event_pump()?))
+        .map_err(|e| e.to_string())?;
+    let canvas = window
+        .into_canvas()
+        .build()
+        .map_err(|e| e.to_string())?;
+    let pump = sdl.event_pump()?;
+    Ok((canvas, pump))
 }
 
 fn main() -> Result<(), String> {
