@@ -27,7 +27,7 @@ fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut colors: [u8; WIDTH * HEIGHT] = [0; WIDTH * HEIGHT];
+    let mut colors: [[u8; HEIGHT]; WIDTH] = [[0; HEIGHT]; WIDTH];
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -38,21 +38,21 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        for x in 0..WIDTH {
-            colors[x + WIDTH * (HEIGHT - 1)] = random_color();
+        for x in 0..WIDTH - 1 {
+            colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = 255;
         }
-        for x in 1..WIDTH {
-            for y in (1..HEIGHT).rev() {
-                colors[x + WIDTH * y] = ((colors[x - 1 + WIDTH * y] as u16 + colors[x + WIDTH * y] as u16) / 2) as u8;
-            }
-        }
+//        for x in 1..WIDTH - 1 {
+//            for y in (1..HEIGHT - 1).rev() {
+//                colors[x][y] = ((colors[x - 1][y] as u16 + colors[x][y] as u16) / 2) as u8;
+//            }
+//        }
 
 
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        for x in 0..WIDTH {
-            for y in 0..HEIGHT {
-                let color = colors[x + WIDTH * y];
+        for x in 0..WIDTH - 1 {
+            for y in 0..HEIGHT - 1 {
+                let color = colors[x][y];
                 canvas.set_draw_color(Color::RGB(color, color, color));
                 canvas.draw_point(Point::new(x as i32, y as i32))?;
             }
@@ -65,9 +65,10 @@ fn main() -> Result<(), String> {
 
 #[test]
 fn test_add() {
-    let mut ys: [i32; 10] = [0; 10];
+    let mut ys: [[i32; 4]; 4] = [[0; 4]; 4];
     println!("{:?}", ys);
-    ys[0] = 12;
+    ys[2][2] = 12;
     println!("{:?}", ys);
+    println!("{:?}", ys[2][2]);
     assert_eq!(1 + 2, 3);
 }
