@@ -33,6 +33,10 @@ impl State {
     fn stop(self) -> State {
         State { direction: None, position: self.position }
     }
+
+    fn move_by(self, delta: Position) -> State {
+        State { direction: self.direction, position: self.position + delta }
+    }
 }
 
 fn main() -> Result<(), String> {
@@ -77,7 +81,6 @@ fn main() -> Result<(), String> {
     dest_rect_2.center_on(Point::new(440, 360));
 
     let mut time = time::now();
-    let mut ticks: i32 = 0;
 
     let mut state = State { direction: None, position: 0 };
 
@@ -115,7 +118,8 @@ fn main() -> Result<(), String> {
             Some(Direction::Forward) => 1,
             Some(Direction::Backward) => -1,
         };
-        ticks += (delta.num_milliseconds() as f32) as i32 * direction;
+        state = state.move_by((delta.num_milliseconds() as f32) as i32 * direction);
+        let ticks = state.position;
 
         // set the current frame for time
         source_rect_0.set_x(32 * ((ticks / 100) % frames_per_anim));
