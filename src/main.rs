@@ -14,6 +14,27 @@ enum Direction {
     Backward,
 }
 
+type Position = i32;
+
+struct State {
+    direction: Option<Direction>,
+    position: Position,
+}
+
+impl State {
+    fn go_forward(self) -> State {
+        State { direction: Some(Direction::Forward), position: self.position }
+    }
+
+    fn go_backward(self) -> State {
+        State { direction: Some(Direction::Backward), position: self.position }
+    }
+
+    fn stop(self) -> State {
+        State { direction: None, position: self.position }
+    }
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -55,13 +76,10 @@ fn main() -> Result<(), String> {
     let mut dest_rect_2 = Rect::new(0, 64, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
     dest_rect_2.center_on(Point::new(440, 360));
 
-    let mut walking = true;
     let mut time = time::now();
     let mut ticks: i32 = 0;
 
-    let mut speed = 1.0;
-
-    let mut direction = Some(Direction::Forward);
+    let mut state = State { direction: None, position: 0 };
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -69,20 +87,21 @@ fn main() -> Result<(), String> {
                 Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'main;
                 }
-                Event::KeyDown { keycode: Some(Keycode::Space), .. } => {
-                    walking = !walking;
-                }
+                Event::KeyDown { keycode: Some(Keycode::Space), .. } => {}
+//                Event::KeyDown { d,.. } => {
+//                    match  { };
+//                }
                 Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    direction = Some(Direction::Backward);
+                    state = state.go_backward();
                 }
                 Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    direction = Some(Direction::Forward);
+                    state = state.go_forward();
                 }
                 Event::KeyUp { keycode: Some(Keycode::Left), .. } => {
-                    direction = None
+                    state = state.stop();
                 }
                 Event::KeyUp { keycode: Some(Keycode::Right), .. } => {
-                    direction = None
+                    state = state.stop();
                 }
                 _ => {}
             }
@@ -92,31 +111,29 @@ fn main() -> Result<(), String> {
         let delta = now - time;
         time = now;
 
-        if walking {
-            let direction = match direction {
-                None => 0,
-                Some(Direction::Forward) => 1,
-                Some(Direction::Backward) => -1,
-            };
-            ticks += (delta.num_milliseconds() as f32) as i32 * direction;
+        let direction = match state.direction {
+            None => 0,
+            Some(Direction::Forward) => 1,
+            Some(Direction::Backward) => -1,
+        };
+        ticks += (delta.num_milliseconds() as f32) as i32 * direction;
 
-            // set the current frame for time
-            source_rect_0.set_x(32 * ((ticks / 100) % frames_per_anim));
-            dest_rect_0.set_x(1 * ((ticks / 14) % 768) - 128);
+        // set the current frame for time
+        source_rect_0.set_x(32 * ((ticks / 100) % frames_per_anim));
+        dest_rect_0.set_x(1 * ((ticks / 14) % 768) - 128);
 
-            source_rect_1.set_x(32 * ((ticks / 100) % frames_per_anim));
-            dest_rect_1.set_x((1 * ((ticks / 12) % 768) - 672) * -1);
+        source_rect_1.set_x(32 * ((ticks / 100) % frames_per_anim));
+        dest_rect_1.set_x((1 * ((ticks / 12) % 768) - 672) * -1);
 
-            source_rect_2.set_x(32 * ((ticks / 100) % frames_per_anim));
-            dest_rect_2.set_x(1 * ((ticks / 10) % 768) - 128);
+        source_rect_2.set_x(32 * ((ticks / 100) % frames_per_anim));
+        dest_rect_2.set_x(1 * ((ticks / 10) % 768) - 128);
 
-            canvas.clear();
-            // copy the frame to the canvas
-            canvas.copy_ex(&texture, Some(source_rect_0), Some(dest_rect_0), 0.0, None, false, false)?;
-            canvas.copy_ex(&texture, Some(source_rect_1), Some(dest_rect_1), 0.0, None, true, false)?;
-            canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
-            canvas.present();
-        }
+        canvas.clear();
+        // copy the frame to the canvas
+        canvas.copy_ex(&texture, Some(source_rect_0), Some(dest_rect_0), 0.0, None, false, false)?;
+        canvas.copy_ex(&texture, Some(source_rect_1), Some(dest_rect_1), 0.0, None, true, false)?;
+        canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
+        canvas.present();
     }
 
     Ok(())
