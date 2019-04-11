@@ -88,19 +88,18 @@ fn main() -> Result<(), String> {
                     break 'main;
                 }
                 Event::KeyDown { keycode: Some(Keycode::Space), .. } => {}
-//                Event::KeyDown { d,.. } => {
-//                    match  { };
-//                }
-                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    state = state.go_backward();
+                Event::KeyDown { keycode, .. } => {
+                    match keycode {
+                        Some(Keycode::Left) => {
+                            state = state.go_backward();
+                        }
+                        Some(Keycode::Right) => {
+                            state = state.go_forward();
+                        }
+                        _ => {}
+                    };
                 }
-                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    state = state.go_forward();
-                }
-                Event::KeyUp { keycode: Some(Keycode::Left), .. } => {
-                    state = state.stop();
-                }
-                Event::KeyUp { keycode: Some(Keycode::Right), .. } => {
+                Event::KeyUp { .. } => {
                     state = state.stop();
                 }
                 _ => {}
