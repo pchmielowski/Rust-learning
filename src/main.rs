@@ -9,6 +9,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
+use time::Tm;
 
 fn random_color() -> u8 {
     rand::random::<u8>()
@@ -45,6 +46,12 @@ fn redraw_image(colors: &mut [[u8; HEIGHT]; WIDTH], canvas: &mut Canvas<Window>)
     canvas.present();
 }
 
+fn update_time(prev: Tm, sum: i64, num_iterations: i64) -> (Tm, i64, i64) {
+    let now = time::now();
+    let delta_time = now - prev;
+    (now, sum + delta_time.num_milliseconds(), num_iterations + 1)
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -79,11 +86,10 @@ fn main() -> Result<(), String> {
 
         redraw_image(&mut colors, &mut canvas);
 
-        let now = time::now();
-        let delta_time = now - time;
-        sum_time += delta_time.num_milliseconds();
-        iterations += 1;
-        time = now;
+        let (_time, _sum_time, _iterations) = update_time(time, sum_time, iterations);
+        time = _time;
+        sum_time = _sum_time;
+        iterations = _iterations;
     }
 
     println!("Avg time for frame: {}", sum_time / iterations);
