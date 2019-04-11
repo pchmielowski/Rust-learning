@@ -32,19 +32,19 @@ struct State {
 }
 
 impl State {
-    fn go_forward(self) -> State {
+    fn go_forward(self) -> Self {
         State { direction: Some(Direction::Forward), ..self }
     }
 
-    fn go_backward(self) -> State {
+    fn go_backward(self) -> Self {
         State { direction: Some(Direction::Backward), ..self }
     }
 
-    fn stop(self) -> State {
+    fn stop(self) -> Self {
         State { direction: None, ..self }
     }
 
-    fn move_by(self, time: i32) -> State {
+    fn move_by(self, time: i32) -> Self {
         let delta = time * self.direction.map_or(0, |d| d.get_delta());
         State { position: self.position + delta, ..self }
     }
