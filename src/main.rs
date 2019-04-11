@@ -46,9 +46,11 @@ fn main() -> Result<(), String> {
         for x in 0..WIDTH {
             colors[x + WIDTH * (HEIGHT - 1)] = random_color();
         }
-//        for x in 0..WIDTH {
-//            colors[x + WIDTH * (HEIGHT - 1)] = random_color();
-//        }
+        for x in 1..WIDTH {
+            for y in (1..HEIGHT).rev() {
+                colors[x + WIDTH * y] = ((colors[x - 1 + WIDTH * y] as u16 + colors[x + WIDTH * y] as u16) / 2) as u8;
+            }
+        }
 
 
         canvas.set_draw_color(Color::RGB(0, 0, 0));
