@@ -29,17 +29,19 @@ type Position = i32;
 struct JumpProgress { value: Option<i32> }
 
 impl JumpProgress {
+    const MAX: i32 = 1000;
+
     fn y(self) -> Position {
         let jum_height = 4;
-        self.value.map(|it| if it > 50 { 100 - it } else { it })
-            .unwrap_or(0) * jum_height
+        self.value
+            .map(|it| if it > JumpProgress::MAX / 2 { JumpProgress::MAX - it } else { it })
+            .unwrap_or(0) * jum_height / 10
     }
 
     fn update(self, time_delta: Millis) -> Self {
         Self {
-            value: self.value.and_then(|it| if it >= 100 { None } else {
-                Some(it + time_delta)
-            })
+            value: self.value
+                .and_then(|it| if it >= JumpProgress::MAX { None } else { Some(it + time_delta) })
         }
     }
 }
