@@ -21,7 +21,7 @@ const HEIGHT: usize = 600;
 
 fn recalculate_image(colors: &mut [[u8; HEIGHT]; WIDTH]) {
     for x in 0..WIDTH - 1 {
-        colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = random_color();
+        colors[x][HEIGHT - 1] = random_color();
     }
     for x in 1..WIDTH - 1 {
         for y in (0..HEIGHT - 1).rev() {
