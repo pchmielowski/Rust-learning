@@ -1,13 +1,14 @@
 extern crate sdl2;
 extern crate time;
 
+use std::f32::consts::PI;
 use std::path::Path;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
-use std::f32::consts::PI;
+use sdl2::pixels::Color;
 
 #[derive(Clone, Copy, PartialEq)]
 enum Direction {
@@ -169,8 +170,12 @@ fn main() -> Result<(), String> {
 
         source_rect_2.set_x(32 * ((state.x / 100) % frames_per_anim));
         dest_rect_2.set_x(1 * ((state.x / 10) % 768) - 128);
-        dest_rect_2.set_y(300 - state.y);
+        let floor = 300;
+        dest_rect_2.set_y(floor - state.y);
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
+        canvas.set_draw_color(Color::RGB(80, 80, 80));
+        canvas.fill_rect(Rect::new(0, source_rect_2.y(), 300, 10));
         canvas.copy_ex(
             &texture,
             Some(source_rect_2),
