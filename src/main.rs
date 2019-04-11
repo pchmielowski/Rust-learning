@@ -79,20 +79,20 @@ fn should_quit(pump: &mut EventPump) -> bool {
     false
 }
 
-fn setup_sdl() -> (Canvas<Window>, EventPump) {
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
+fn setup_sdl() -> Result<(Canvas<Window>, EventPump), String> {
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("Fire", WIDTH as u32, HEIGHT as u32)
         .position_centered()
         .opengl()
         .build()
-        .map_err(|e| e.to_string()).unwrap();
-    (window.into_canvas().build().map_err(|e| e.to_string()).unwrap(),
-     sdl_context.event_pump().unwrap())
+        .map_err(|e| e.to_string())
+        .and_then(|window| window.into_canvas().build().map_err(|e| e.to_string()));
+    Ok((window?, sdl_context.event_pump()?))
 }
 
 fn main() -> Result<(), String> {
-    let (mut canvas, mut event_pump) = setup_sdl();
+    let (mut canvas, mut event_pump) = setup_sdl()?;
     let mut colors = create_colors();
     let mut time_info = (time::now(), 0, 0);
 
