@@ -65,17 +65,6 @@ fn main() -> Result<(), String> {
     let frames_per_anim = 4;
     let sprite_tile_size = (32, 32);
 
-    // Baby - walk animation
-    let mut source_rect_0 = Rect::new(0, 0, sprite_tile_size.0, sprite_tile_size.0);
-    let mut dest_rect_0 = Rect::new(0, 0, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
-    dest_rect_0.center_on(Point::new(-64, 120));
-
-    // King - walk animation
-    let mut source_rect_1 = Rect::new(0, 32, sprite_tile_size.0, sprite_tile_size.0);
-    let mut dest_rect_1 = Rect::new(0, 32, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
-    dest_rect_1.center_on(Point::new(0, 240));
-
-    // Soldier - walk animation
     let mut source_rect_2 = Rect::new(0, 64, sprite_tile_size.0, sprite_tile_size.0);
     let mut dest_rect_2 = Rect::new(0, 64, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
     dest_rect_2.center_on(Point::new(440, 360));
@@ -119,22 +108,12 @@ fn main() -> Result<(), String> {
             Some(Direction::Backward) => -1,
         };
         state = state.move_by((delta.num_milliseconds() as f32) as i32 * direction);
-        let ticks = state.position;
 
-        // set the current frame for time
-        source_rect_0.set_x(32 * ((ticks / 100) % frames_per_anim));
-        dest_rect_0.set_x(1 * ((ticks / 14) % 768) - 128);
-
-        source_rect_1.set_x(32 * ((ticks / 100) % frames_per_anim));
-        dest_rect_1.set_x((1 * ((ticks / 12) % 768) - 672) * -1);
-
-        source_rect_2.set_x(32 * ((ticks / 100) % frames_per_anim));
-        dest_rect_2.set_x(1 * ((ticks / 10) % 768) - 128);
+        source_rect_2.set_x(32 * ((state.position / 100) % frames_per_anim));
+        dest_rect_2.set_x(1 * ((state.position / 10) % 768) - 128);
 
         canvas.clear();
         // copy the frame to the canvas
-        canvas.copy_ex(&texture, Some(source_rect_0), Some(dest_rect_0), 0.0, None, false, false)?;
-        canvas.copy_ex(&texture, Some(source_rect_1), Some(dest_rect_1), 0.0, None, true, false)?;
         canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
         canvas.present();
     }
