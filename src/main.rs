@@ -21,17 +21,25 @@ const HEIGHT: usize = 600;
 
 type Colors = [[u8; HEIGHT]; WIDTH];
 
-fn recalculate_image(colors: &mut Colors) {
+fn get(colors: &Colors, x: usize, y: usize) -> u8 {
+    colors[x][y]
+}
+
+fn set(colors: &mut Colors, x: usize, y: usize, value: u8) {
+    colors[x][y] = value;
+}
+
+fn recalculate_image(mut colors: &mut Colors) {
     for x in 0..WIDTH - 1 {
-        colors[x][HEIGHT - 1] = random_color();
+        set(colors, x, HEIGHT - 1, random_color());
     }
     for x in 1..WIDTH - 1 {
         for y in (0..HEIGHT - 1).rev() {
-            let sum = colors[x][y] as u16
-                + colors[x][y + 1] as u16
-                + colors[x - 1][y + 1] as u16
-                + colors[x + 1][y + 1] as u16;
-            colors[x][y] = (sum / 4) as u8;
+            let sum = get(colors, x, y) as u16
+                + get(colors, x, y + 1) as u16
+                + get(colors, x - 1, y + 1) as u16
+                + get(colors, x + 1, y + 1) as u16;
+            set(&mut colors, x, y, (sum / 4) as u8);
         }
     }
 }
@@ -41,7 +49,7 @@ fn redraw_image(colors: &mut Colors, canvas: &mut Canvas<Window>) {
     canvas.clear();
     for x in 0..WIDTH - 1 {
         for y in 0..HEIGHT - 1 {
-            let color = colors[x][y];
+            let color = get(colors, x, y);
             canvas.set_draw_color(Color::RGB(color, color, color));
             canvas.draw_point(Point::new(x as i32, y as i32)).unwrap();
         }
