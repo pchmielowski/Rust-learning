@@ -8,6 +8,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
+use sdl2::mouse::SystemCursor::No;
 
 #[derive(Clone, Copy)]
 enum Direction {
@@ -26,9 +27,15 @@ impl Direction {
 
 type Position = i32;
 
+type Percent = i32;
+
+type Millis = i32;
+
 struct State {
     direction: Option<Direction>,
-    position: Position,
+    x: Position,
+    y: Position,
+    jump_progress: Option<Percent>,
 }
 
 impl State {
@@ -44,9 +51,22 @@ impl State {
         State { direction: None, ..self }
     }
 
-    fn move_by(self, time_delta: i32) -> Self {
-        let position_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
-        State { position: self.position + position_delta, ..self }
+    fn jump(self) -> Self {
+        State { jump_progress: Some(0), ..self }
+    }
+
+    fn update(self, time_delta: Millis) -> Self {
+        let x_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
+        let mut yy = self.jump_progress.unwrap_or(0);
+        if yy > 50 {
+            yy = 100 - yy;
+        }
+        State {
+            x: self.x + x_delta,
+            y: yy,
+            jump_progress: self.jump_progress.map(|it| if it == 100 { 0 } else { it + time_delta }),
+            ..self
+        }
     }
 }
 
@@ -67,8 +87,8 @@ fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    // animation sheet and extras are available from
-    // https://opengameart.org/content/a-platformer-in-the-forest
+// animation sheet and extras are available from
+// https://opengameart.org/content/a-platformer-in-the-forest
     let temp_surface = sdl2::surface::Surface::load_bmp(Path::new("assets/characters.bmp"))?;
     let texture = texture_creator.create_texture_from_surface(&temp_surface)
         .map_err(|e| e.to_string())?;
@@ -82,7 +102,7 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state = State { direction: None, position: 0 };
+    let mut state = State { direction: None, x: 0, y: 0, jump_progress: None };
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -90,7 +110,6 @@ fn main() -> Result<(), String> {
                 Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'main;
                 }
-                Event::KeyDown { keycode: Some(Keycode::Space), .. } => {}
                 Event::KeyDown { keycode, .. } => {
                     match keycode {
                         Some(Keycode::Left) => {
@@ -98,6 +117,9 @@ fn main() -> Result<(), String> {
                         }
                         Some(Keycode::Right) => {
                             state = state.go_forward();
+                        }
+                        Some(Keycode::Space) => {
+                            state = state.jump();
                         }
                         _ => {}
                     };
@@ -113,13 +135,13 @@ fn main() -> Result<(), String> {
         let delta = now - time;
         time = now;
 
-        state = state.move_by(delta.num_milliseconds() as i32);
+        state = state.update(delta.num_milliseconds() as Millis);
 
-        source_rect_2.set_x(32 * ((state.position / 100) % frames_per_anim));
-        dest_rect_2.set_x(1 * ((state.position / 10) % 768) - 128);
-
+        source_rect_2.set_x(32 * ((state.x / 100) % frames_per_anim));
+        dest_rect_2.set_x(1 * ((state.x / 10) % 768) - 128);
+        dest_rect_2.set_y(300-state.y);
         canvas.clear();
-        // copy the frame to the canvas
+// copy the frame to the canvas
         canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
         canvas.present();
     }
