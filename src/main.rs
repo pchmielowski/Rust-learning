@@ -19,7 +19,9 @@ fn random_color() -> u8 {
 const WIDTH: usize = 800;
 const HEIGHT: usize = 600;
 
-fn recalculate_image(colors: &mut [[u8; HEIGHT]; WIDTH]) {
+type Colors = [[u8; HEIGHT]; WIDTH];
+
+fn recalculate_image(colors: &mut Colors) {
     for x in 0..WIDTH - 1 {
         colors[x][HEIGHT - 1] = random_color();
     }
@@ -34,7 +36,7 @@ fn recalculate_image(colors: &mut [[u8; HEIGHT]; WIDTH]) {
     }
 }
 
-fn redraw_image(colors: &mut [[u8; HEIGHT]; WIDTH], canvas: &mut Canvas<Window>) {
+fn redraw_image(colors: &mut Colors, canvas: &mut Canvas<Window>) {
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
     for x in 0..WIDTH - 1 {
