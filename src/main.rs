@@ -2,13 +2,11 @@ extern crate sdl2;
 extern crate time;
 
 use std::path::Path;
-use std::time::Duration;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
-use sdl2::mouse::SystemCursor::No;
 
 #[derive(Clone, Copy)]
 enum Direction {
@@ -95,8 +93,6 @@ fn main() -> Result<(), String> {
     let texture_creator = canvas.texture_creator();
 
     canvas.set_draw_color(sdl2::pixels::Color::RGBA(0, 0, 0, 255));
-
-    let mut timer = sdl_context.timer()?;
 
     let mut event_pump = sdl_context.event_pump()?;
 
