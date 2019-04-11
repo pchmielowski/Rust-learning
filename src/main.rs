@@ -68,9 +68,7 @@ fn main() -> Result<(), String> {
 
     let mut colors: [[u8; HEIGHT]; WIDTH] = [[0; HEIGHT]; WIDTH];
 
-    let mut time = time::now();
-    let mut sum_time = 0;
-    let mut iterations = 0;
+    let mut time_info = (time::now(), 0, 0);
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -86,12 +84,11 @@ fn main() -> Result<(), String> {
 
         redraw_image(&mut colors, &mut canvas);
 
-        let (_time, _sum_time, _iterations) = update_time(time, sum_time, iterations);
-        time = _time;
-        sum_time = _sum_time;
-        iterations = _iterations;
+        let (time, sum_time, iterations) = time_info;
+        time_info = update_time(time, sum_time, iterations);
     }
 
+    let (_, sum_time, iterations) = time_info;
     println!("Avg time for frame: {}", sum_time / iterations);
     println!("Avg FPS:            {}", 1_000 / (sum_time / iterations));
     Ok(())
