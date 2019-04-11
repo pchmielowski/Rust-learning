@@ -47,17 +47,19 @@ fn recalculate_image(mut colors: &mut Colors) {
     }
 }
 
-fn redraw_image(colors: &mut Colors, canvas: &mut Canvas<Window>) {
+fn redraw_image(colors: &mut Colors, canvas: &mut Canvas<Window>) -> Result<(), String> {
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
     for x in 0..WIDTH - 1 {
         for y in 0..HEIGHT - 1 {
             let color = get(colors, x, y);
+            if color < 10 { continue; }
             canvas.set_draw_color(Color::RGB(color, color, color));
-            canvas.draw_point(Point::new(x as i32, y as i32)).unwrap();
+            canvas.draw_point(Point::new(x as i32, y as i32))?;
         }
     }
     canvas.present();
+    Ok(())
 }
 
 fn update_time(time_info: (Tm, i64, i64)) -> (Tm, i64, i64) {
@@ -104,7 +106,7 @@ fn main() -> Result<(), String> {
         if should_quit(&mut event_pump) { break; }
 
         recalculate_image(&mut colors);
-        redraw_image(&mut colors, &mut canvas);
+        redraw_image(&mut colors, &mut canvas)?;
 
         time_info = update_time(time_info);
     }
