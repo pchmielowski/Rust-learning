@@ -37,10 +37,9 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-//        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        canvas.set_draw_color(Color::RGB(255, 0, 0));
+        canvas.set_draw_color(Color::RGB(random(255) as u8, 0, 0));
         for x in 0..width {
             for y in 0..random(height / 2) {
                 canvas.draw_point(Point::new(x as i32, y as i32));
