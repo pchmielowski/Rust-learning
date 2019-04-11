@@ -42,6 +42,10 @@ impl JumpProgress {
             .unwrap_or(0)
     }
 
+    fn new_jump(self) -> Self {
+        Self { value: self.value.or(Some(0)) }
+    }
+
     fn update(self, time_delta: Millis) -> Self {
         Self {
             value: self.value
@@ -73,7 +77,7 @@ impl State {
     }
 
     fn jump(self) -> Self {
-        State { jump_progress: JumpProgress { value: self.jump_progress.value.or(Some(0)) }, ..self }
+        State { jump_progress: self.jump_progress.new_jump(), ..self }
     }
 
     fn update(self, time_delta: Millis) -> Self {
