@@ -4,11 +4,12 @@ extern crate time;
 
 
 use sdl2::event::Event;
+use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
-use sdl2::video::Window;
 use sdl2::render::Canvas;
+use sdl2::video::Window;
 use time::Tm;
 
 fn random_color() -> u8 {
@@ -52,6 +53,18 @@ fn update_time(prev: Tm, sum: i64, num_iterations: i64) -> (Tm, i64, i64) {
     (now, sum + delta_time.num_milliseconds(), num_iterations + 1)
 }
 
+fn should_quit(pump: &mut EventPump) -> bool {
+    for event in pump.poll_iter() {
+        match event {
+            Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                return true;
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -71,13 +84,8 @@ fn main() -> Result<(), String> {
     let mut time_info = (time::now(), 0, 0);
 
     'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    break 'running;
-                }
-                _ => {}
-            }
+        if should_quit(&mut event_pump) {
+            break 'running;
         }
 
         recalculate_image(&mut colors);
