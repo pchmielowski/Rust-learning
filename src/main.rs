@@ -57,14 +57,17 @@ impl State {
 
     fn update(self, time_delta: Millis) -> Self {
         let x_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
-        let mut yy = self.jump_progress.unwrap_or(0);
-        if yy > 50 {
-            yy = 100 - yy;
-        }
+        let y = self.jump_progress
+            .map(|it| if it > 50 { 100 - it } else { it })
+            .unwrap_or(0);
+        let jum_height = 4;
         State {
             x: self.x + x_delta,
-            y: yy,
-            jump_progress: self.jump_progress.map(|it| if it == 100 { 0 } else { it + time_delta }),
+            y: y * jum_height,
+            jump_progress: self.jump_progress
+                .and_then(|it| if it >= 100 { None } else {
+                    Some(it + time_delta)
+                }),
             ..self
         }
     }
@@ -139,7 +142,7 @@ fn main() -> Result<(), String> {
 
         source_rect_2.set_x(32 * ((state.x / 100) % frames_per_anim));
         dest_rect_2.set_x(1 * ((state.x / 10) % 768) - 128);
-        dest_rect_2.set_y(300-state.y);
+        dest_rect_2.set_y(300 - state.y);
         canvas.clear();
 // copy the frame to the canvas
         canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
