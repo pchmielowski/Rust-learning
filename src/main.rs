@@ -7,6 +7,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
+use std::f32::consts::PI;
 
 #[derive(Clone, Copy, PartialEq)]
 enum Direction {
@@ -32,10 +33,13 @@ impl JumpProgress {
     const MAX: i32 = 1000;
 
     fn y(self) -> Position {
-        let jum_height = 4;
+        let height = 200.0;
         self.value
             .map(|it| if it > JumpProgress::MAX / 2 { JumpProgress::MAX - it } else { it })
-            .unwrap_or(0) * jum_height / 10
+            .map(|it| it as f32 * 2.0)
+            .map(|it| it / JumpProgress::MAX as f32 * PI / 2.0)
+            .map(|it| (it.sin() * height) as i32)
+            .unwrap_or(0)
     }
 
     fn update(self, time_delta: Millis) -> Self {
