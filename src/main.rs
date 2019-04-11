@@ -172,8 +172,15 @@ fn main() -> Result<(), String> {
         dest_rect_2.set_x(1 * ((state.x / 10) % 768) - 128);
         dest_rect_2.set_y(300 - state.y);
         canvas.clear();
-// copy the frame to the canvas
-        canvas.copy_ex(&texture, Some(source_rect_2), Some(dest_rect_2), 0.0, None, false, false)?;
+        canvas.copy_ex(
+            &texture,
+            Some(source_rect_2),
+            Some(dest_rect_2),
+            0.0,
+            None,
+            state.direction == Some(Direction::Backward),
+            false,
+        )?;
         canvas.present();
     }
 
