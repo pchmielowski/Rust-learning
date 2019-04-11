@@ -9,6 +9,11 @@ use sdl2::rect::Rect;
 use sdl2::rect::Point;
 use std::time::Duration;
 
+enum Move {
+    Front,
+    Back,
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -56,6 +61,8 @@ fn main() -> Result<(), String> {
 
     let mut speed = 1.0;
 
+    let mut mov = Some(Move::Front);
+
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -65,11 +72,17 @@ fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::Space), .. } => {
                     walking = !walking;
                 }
-                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
-                    speed += 0.5;
+                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
+                    mov = Some(Move::Back);
                 }
-                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
-                    speed -= 0.5;
+                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
+                    mov = Some(Move::Front);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Left), .. } => {
+                    mov = None
+                }
+                Event::KeyUp { keycode: Some(Keycode::Right), .. } => {
+                    mov = None
                 }
                 _ => {}
             }
@@ -80,7 +93,12 @@ fn main() -> Result<(), String> {
         time = now;
 
         if walking {
-            ticks += (delta.num_milliseconds() as f32 * speed) as i32;
+            let direction = match mov {
+                None => 0,
+                Some(Move::Front) => 1,
+                Some(Move::Back) => -1,
+            };
+            ticks += (delta.num_milliseconds() as f32) as i32 * direction;
 
             // set the current frame for time
             source_rect_0.set_x(32 * ((ticks / 100) % frames_per_anim));
