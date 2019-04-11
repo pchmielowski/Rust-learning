@@ -9,7 +9,7 @@ use std::time::Duration;
 use sdl2::rect::{Rect, Point};
 
 fn random(range: u32) -> u32 {
-    return (rand::random::<f32>() * range as f32 / 2.0 + range as f32 / 2.0) as u32;
+    (rand::random::<f32>() * range as f32 / 2.0 + range as f32 / 2.0) as u32
 }
 
 fn main() -> Result<(), String> {
