@@ -2,12 +2,12 @@ extern crate sdl2;
 extern crate time;
 
 use std::path::Path;
+use std::time::Duration;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::rect::Rect;
 use sdl2::rect::Point;
-use std::time::Duration;
+use sdl2::rect::Rect;
 
 #[derive(Clone, Copy)]
 enum Direction {
@@ -113,11 +113,6 @@ fn main() -> Result<(), String> {
         let delta = now - time;
         time = now;
 
-        let direction = match state.direction {
-            None => 0,
-            Some(Direction::Forward) => 1,
-            Some(Direction::Backward) => -1,
-        };
         state = state.move_by(delta.num_milliseconds() as i32);
 
         source_rect_2.set_x(32 * ((state.position / 100) % frames_per_anim));
