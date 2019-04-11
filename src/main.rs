@@ -1,16 +1,11 @@
-extern crate sdl2;
 extern crate rand;
+extern crate sdl2;
 
-use rand::prelude::*;
-use sdl2::pixels::Color;
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::time::Duration;
-use sdl2::rect::{Rect, Point};
-
-fn random(range: u32) -> u32 {
-    (rand::random::<f32>() * range as f32 / 2.0 + range as f32 / 2.0) as u32
-}
+use sdl2::pixels::Color;
+use sdl2::rect::Point;
 
 fn random_color() -> u8 {
     rand::random::<u8>()
@@ -59,7 +54,7 @@ fn main() -> Result<(), String> {
             for y in 0..HEIGHT {
                 let color = colors[x + WIDTH * y];
                 canvas.set_draw_color(Color::RGB(color, color, color));
-                canvas.draw_point(Point::new(x as i32, y as i32));
+                canvas.draw_point(Point::new(x as i32, y as i32))?;
             }
         }
         canvas.present();
