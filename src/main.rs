@@ -12,11 +12,27 @@ fn random_color() -> u8 {
     rand::random::<u8>()
 }
 
+const WIDTH: usize = 800;
+const HEIGHT: usize = 600;
+
+fn recalculate_image(colors: &mut [[u8; HEIGHT]; WIDTH]) {
+    for x in 0..WIDTH - 1 {
+        colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = random_color();
+    }
+    for x in 1..WIDTH - 1 {
+        for y in (0..HEIGHT - 1).rev() {
+            let sum = colors[x][y] as u16
+                + colors[x][y + 1] as u16
+                + colors[x - 1][y + 1] as u16
+                + colors[x + 1][y + 1] as u16;
+            colors[x][y] = (sum / 4) as u8;
+        }
+    }
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-    const WIDTH: usize = 800;
-    const HEIGHT: usize = 600;
 
     let window = video_subsystem.window("Fire", WIDTH as u32, HEIGHT as u32)
         .position_centered()
@@ -44,18 +60,8 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        for x in 0..WIDTH - 1 {
-            colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = random_color();
-        }
-        for x in 1..WIDTH - 1 {
-            for y in (0..HEIGHT - 1).rev() {
-                let sum = colors[x][y] as u16
-                    + colors[x][y + 1] as u16
-                    + colors[x - 1][y + 1] as u16
-                    + colors[x + 1][y + 1] as u16;
-                colors[x][y] = (sum / 4) as u8;
-            }
-        }
+
+        recalculate_image(&mut colors);
 
 
         canvas.set_draw_color(Color::RGB(0, 0, 0));
