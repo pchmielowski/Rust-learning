@@ -62,7 +62,6 @@ fn main() -> Result<(), String> {
     let mut colors: [[u8; HEIGHT]; WIDTH] = [[0; HEIGHT]; WIDTH];
 
     let mut time = time::now();
-
     let mut sum_time = 0;
     let mut iterations = 0;
 
