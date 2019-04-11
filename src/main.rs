@@ -9,7 +9,7 @@ use sdl2::rect::Rect;
 use sdl2::rect::Point;
 use std::time::Duration;
 
-enum Move {
+enum Direction {
     Forward,
     Backward,
 }
@@ -61,7 +61,7 @@ fn main() -> Result<(), String> {
 
     let mut speed = 1.0;
 
-    let mut mov = Some(Move::Forward);
+    let mut direction = Some(Direction::Forward);
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -73,16 +73,16 @@ fn main() -> Result<(), String> {
                     walking = !walking;
                 }
                 Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    mov = Some(Move::Backward);
+                    direction = Some(Direction::Backward);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    mov = Some(Move::Forward);
+                    direction = Some(Direction::Forward);
                 }
                 Event::KeyUp { keycode: Some(Keycode::Left), .. } => {
-                    mov = None
+                    direction = None
                 }
                 Event::KeyUp { keycode: Some(Keycode::Right), .. } => {
-                    mov = None
+                    direction = None
                 }
                 _ => {}
             }
@@ -93,10 +93,10 @@ fn main() -> Result<(), String> {
         time = now;
 
         if walking {
-            let direction = match mov {
+            let direction = match direction {
                 None => 0,
-                Some(Move::Forward) => 1,
-                Some(Move::Backward) => -1,
+                Some(Direction::Forward) => 1,
+                Some(Direction::Backward) => -1,
             };
             ticks += (delta.num_milliseconds() as f32) as i32 * direction;
 
