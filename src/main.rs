@@ -8,7 +8,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum Direction {
     Forward,
     Backward,
@@ -133,8 +133,20 @@ fn main() -> Result<(), String> {
                         _ => {}
                     };
                 }
-                Event::KeyUp { .. } => {
-                    state = state.stop();
+                Event::KeyUp { keycode, .. } => {
+                    match keycode {
+                        Some(Keycode::Left) => {
+                            if state.direction == Some(Direction::Backward) {
+                                state = state.stop();
+                            }
+                        }
+                        Some(Keycode::Right) => {
+                            if state.direction == Some(Direction::Forward) {
+                                state = state.stop();
+                            }
+                        }
+                        _ => {}
+                    };
                 }
                 _ => {}
             }
