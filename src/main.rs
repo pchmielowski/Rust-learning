@@ -17,10 +17,9 @@ enum Direction {
 
 impl Direction {
     fn get_delta(self) -> Position {
-        let velocity = 3;
         match self {
-            Direction::Forward => velocity,
-            Direction::Backward => -velocity,
+            Direction::Forward => 1,
+            Direction::Backward => -1,
         }
     }
 }
@@ -45,8 +44,8 @@ impl State {
         State { direction: None, ..self }
     }
 
-    fn move_by(self, delta: Position) -> State {
-        let delta = self.direction.map_or(0, |d| d.get_delta());
+    fn move_by(self, time: i32) -> State {
+        let delta = time * self.direction.map_or(0, |d| d.get_delta());
         State { position: self.position + delta, ..self }
     }
 }
@@ -119,7 +118,7 @@ fn main() -> Result<(), String> {
             Some(Direction::Forward) => 1,
             Some(Direction::Backward) => -1,
         };
-        state = state.move_by((delta.num_milliseconds() as f32) as i32);
+        state = state.move_by(delta.num_milliseconds() as i32);
 
         source_rect_2.set_x(32 * ((state.position / 100) % frames_per_anim));
         dest_rect_2.set_x(1 * ((state.position / 10) % 768) - 128);
