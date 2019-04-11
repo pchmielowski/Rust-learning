@@ -1,5 +1,6 @@
 extern crate rand;
 extern crate sdl2;
+extern crate time;
 
 
 use sdl2::event::Event;
@@ -28,6 +29,11 @@ fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
 
     let mut colors: [[u8; HEIGHT]; WIDTH] = [[0; HEIGHT]; WIDTH];
+
+    let mut time = time::now();
+
+    let mut sum_time = 0;
+    let mut iterations = 0;
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -62,8 +68,15 @@ fn main() -> Result<(), String> {
             }
         }
         canvas.present();
+        let now = time::now();
+        let delta_time = now - time;
+        sum_time += delta_time.num_milliseconds();
+        iterations += 1;
+        time = now;
     }
 
+    println!("Avg time for frame: {}", sum_time / iterations);
+    println!("Avg FPS:            {}", 1_000 / (sum_time / iterations));
     Ok(())
 }
 
