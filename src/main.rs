@@ -57,7 +57,8 @@ impl JumpProgress {
 type Millis = i32;
 
 struct State {
-    direction: Option<Direction>,
+    direction: Direction,
+    is_moving: bool,
     x: Position,
     y: Position,
     jump_progress: JumpProgress,
@@ -65,15 +66,15 @@ struct State {
 
 impl State {
     fn go_forward(self) -> Self {
-        State { direction: Some(Direction::Forward), ..self }
+        State { direction: Direction::Forward, is_moving: true, ..self }
     }
 
     fn go_backward(self) -> Self {
-        State { direction: Some(Direction::Backward), ..self }
+        State { direction: Direction::Backward, is_moving: true, ..self }
     }
 
     fn stop(self) -> Self {
-        State { direction: None, ..self }
+        State { is_moving: false, ..self }
     }
 
     fn jump(self) -> Self {
@@ -81,7 +82,7 @@ impl State {
     }
 
     fn update(self, time_delta: Millis) -> Self {
-        let x_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
+        let x_delta = if self.is_moving { time_delta * self.direction.get_delta() } else { 0 };
         State {
             x: self.x + x_delta,
             y: self.jump_progress.y(),
@@ -121,7 +122,13 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state = State { direction: None, x: 0, y: 0, jump_progress: JumpProgress { value: None } };
+    let mut state = State {
+        direction: Direction::Forward,
+        is_moving: false,
+        x: 0,
+        y: 0,
+        jump_progress: JumpProgress { value: None },
+    };
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -146,12 +153,12 @@ fn main() -> Result<(), String> {
                 Event::KeyUp { keycode, .. } => {
                     match keycode {
                         Some(Keycode::Left) => {
-                            if state.direction == Some(Direction::Backward) {
+                            if state.direction == Direction::Backward {
                                 state = state.stop();
                             }
                         }
                         Some(Keycode::Right) => {
-                            if state.direction == Some(Direction::Forward) {
+                            if state.direction == Direction::Forward {
                                 state = state.stop();
                             }
                         }
@@ -178,7 +185,7 @@ fn main() -> Result<(), String> {
             Some(dest_rect_2),
             0.0,
             None,
-            state.direction == Some(Direction::Backward),
+            state.direction == Direction::Backward,
             false,
         )?;
         canvas.present();
