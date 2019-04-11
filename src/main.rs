@@ -39,13 +39,17 @@ fn main() -> Result<(), String> {
             }
         }
         for x in 0..WIDTH - 1 {
-            colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = 255;
+            colors[x][HEIGHT - 2 /* I don't know why 2 works and 1 not */] = random_color();
         }
-//        for x in 1..WIDTH - 1 {
-//            for y in (1..HEIGHT - 1).rev() {
-//                colors[x][y] = ((colors[x - 1][y] as u16 + colors[x][y] as u16) / 2) as u8;
-//            }
-//        }
+        for x in 1..WIDTH - 1 {
+            for y in (0..HEIGHT - 1).rev() {
+                let sum = colors[x][y] as u16
+                    + colors[x][y + 1] as u16
+                    + colors[x - 1][y + 1] as u16
+                    + colors[x + 1][y + 1] as u16;
+                colors[x][y] = (sum / 4) as u8;
+            }
+        }
 
 
         canvas.set_draw_color(Color::RGB(0, 0, 0));
