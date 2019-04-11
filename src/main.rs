@@ -44,9 +44,9 @@ impl State {
         State { direction: None, ..self }
     }
 
-    fn move_by(self, time: i32) -> Self {
-        let delta = time * self.direction.map_or(0, |d| d.get_delta());
-        State { position: self.position + delta, ..self }
+    fn move_by(self, time_delta: i32) -> Self {
+        let position_delta = time_delta * self.direction.map_or(0, |d| d.get_delta());
+        State { position: self.position + position_delta, ..self }
     }
 }
 
