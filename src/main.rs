@@ -53,6 +53,7 @@ type Seconds = f32;
 struct State {
     direction: Direction,
     is_moving: bool,
+    is_jumping: bool,
     x: Meters,
     y: Meters,
     speed_y: MetersPerSecond,
@@ -67,26 +68,30 @@ impl Default for State {
             speed_y: 0.0,
             direction: Direction::default(),
             is_moving: false,
+            is_jumping: false,
             board: Board::default(),
         }
     }
 }
 
 impl State {
-    fn go_forward(self) -> Self {
-        State {
-            direction: Direction::Forward,
-            is_moving: true,
-            ..self
+    fn go_in_direction(self, direction: Direction) -> Self {
+        if self.is_jumping {
+            self
+        } else {
+            State {
+                direction,
+                is_moving: true,
+                ..self
+            }
         }
+    }
+    fn go_forward(self) -> Self {
+        self.go_in_direction(Direction::Forward)
     }
 
     fn go_backward(self) -> Self {
-        State {
-            direction: Direction::Backward,
-            is_moving: true,
-            ..self
-        }
+        self.go_in_direction(Direction::Backward)
     }
 
     fn stop(self) -> Self {
@@ -99,6 +104,7 @@ impl State {
     fn jump(self) -> Self {
         State {
             speed_y: 7.0,
+            is_jumping: true,
             ..self
         }
     }
@@ -111,9 +117,11 @@ impl State {
             0.0
         };
         let g = 9.81; // m/s^2
+        let y = (self.y + self.speed_y * seconds).max(0.0);
         State {
             x: self.x + x_delta,
-            y: (self.y + self.speed_y * seconds).max(0.0),
+            y,
+            is_jumping: y != 0.0,
             speed_y: self.speed_y - g * seconds,
             ..self
         }
