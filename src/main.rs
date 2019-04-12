@@ -55,7 +55,7 @@ struct State {
     is_moving: bool,
     x: Meters,
     y: Meters,
-    dy: MetersPerSecond,
+    speed_y: MetersPerSecond,
     board: Board,
 }
 
@@ -64,7 +64,7 @@ impl Default for State {
         State {
             x: 0.0,
             y: 0.0,
-            dy: 0.0,
+            speed_y: 0.0,
             direction: Direction::default(),
             is_moving: false,
             board: Board::default(),
@@ -98,7 +98,7 @@ impl State {
 
     fn jump(self) -> Self {
         State {
-            dy: 7.0,
+            speed_y: 7.0,
             ..self
         }
     }
@@ -113,8 +113,8 @@ impl State {
         let g = 9.81; // m/s^2
         State {
             x: self.x + x_delta,
-            y: (self.y + self.dy * seconds).max(0.0),
-            dy: self.dy - g * seconds,
+            y: (self.y + self.speed_y * seconds).max(0.0),
+            speed_y: self.speed_y - g * seconds,
             ..self
         }
     }
