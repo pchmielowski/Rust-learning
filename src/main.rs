@@ -12,10 +12,10 @@ use sdl2::rect::Rect;
 use std::fmt::Debug;
 
 struct Platform {
-    x: Position,
-    y: Position,
-    width: Position,
-    height: Position,
+    x: Meters,
+    y: Meters,
+    width: Meters,
+    height: Meters,
 }
 
 #[derive(Default)]
@@ -34,15 +34,17 @@ impl Default for Direction {
 }
 
 impl Direction {
-    fn get_delta(self) -> Position {
+    fn speed(self) -> Meters {
+        let speed: MetersPerSecond = 6;
         match self {
-            Direction::Forward => 1,
-            Direction::Backward => -1,
+            Direction::Forward => speed,
+            Direction::Backward => -speed,
         }
     }
 }
 
-type Position = i32;
+type Meters = i32;
+type MetersPerSecond = i32;
 
 #[derive(Clone, Copy, Default)]
 struct JumpProgress {
@@ -52,7 +54,7 @@ struct JumpProgress {
 impl JumpProgress {
     const MAX: i32 = 1000;
 
-    fn y(self) -> Position {
+    fn y(self) -> Meters {
         let height = 200.0;
         self.value
             .map(|it| {
@@ -92,9 +94,9 @@ type Millis = i32;
 struct State {
     direction: Direction,
     is_moving: bool,
-    x: Position,
-    y: Position,
-    dy: Position,
+    x: Meters,
+    y: Meters,
+    dy: Meters,
     jump_progress: JumpProgress,
     board: Board,
 }
@@ -147,7 +149,7 @@ impl State {
 
     fn update(self, time_delta: Millis) -> Self {
         let x_delta = if self.is_moving {
-            time_delta * self.direction.get_delta()
+            time_delta * self.direction.speed()
         } else {
             0
         };
