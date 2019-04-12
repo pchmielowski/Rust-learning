@@ -17,10 +17,19 @@ struct Platform {
     height: Position,
 }
 
+#[derive(Default)]
+struct Board {
+    platforms: Vec<Platform>,
+}
+
 #[derive(Clone, Copy, PartialEq)]
 enum Direction {
     Forward,
     Backward,
+}
+
+impl Default for Direction {
+    fn default() -> Self { Direction::Forward }
 }
 
 impl Direction {
@@ -34,7 +43,7 @@ impl Direction {
 
 type Position = i32;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 struct JumpProgress {
     value: Option<i32>,
 }
@@ -79,12 +88,14 @@ impl JumpProgress {
 
 type Millis = i32;
 
+#[derive(Default)]
 struct State {
     direction: Direction,
     is_moving: bool,
     x: Position,
     y: Position,
     jump_progress: JumpProgress,
+    board: Board,
 }
 
 impl State {
@@ -170,13 +181,7 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state = State {
-        direction: Direction::Forward,
-        is_moving: false,
-        x: 0,
-        y: 0,
-        jump_progress: JumpProgress { value: None },
-    };
+    let mut state :State= Default::default();
 
     'main: loop {
         for event in event_pump.poll_iter() {
