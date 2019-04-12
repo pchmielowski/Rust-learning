@@ -165,10 +165,10 @@ fn main() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
 
     let frames_per_anim = 4;
-    let sprite_tile_size = (32, 32);
+    let sprite_tile_size = 32;
 
-    let mut character_src = Rect::new(0, 64, sprite_tile_size.0, sprite_tile_size.0);
-    let mut character_dst = Rect::new(0, 64, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
+    let mut character_src = Rect::new(0, 64, sprite_tile_size, sprite_tile_size);
+    let mut character_dst = Rect::new(0, 64, sprite_tile_size * 4, sprite_tile_size * 4);
     character_dst.center_on(Point::new(440, 360));
 
     let mut time = time::now();
@@ -233,9 +233,9 @@ fn main() -> Result<(), String> {
         // Draw character.
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
-        let speed_ratio = 40.0;
+        let speed_ratio = 60.0;
         character_dst.set_x((state.x * speed_ratio) as i32);
-        character_dst.set_y(height as i32 - ((state.y * speed_ratio) as i32));
+        character_dst.set_y((height - sprite_tile_size * 4) as i32 - ((state.y * speed_ratio) as i32));
         canvas.copy_ex(
             &texture,
             Some(character_src),
