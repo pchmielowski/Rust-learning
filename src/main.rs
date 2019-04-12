@@ -35,7 +35,7 @@ impl Default for Direction {
 
 impl Direction {
     fn speed(self) -> Meters {
-        let speed: MetersPerSecond = 6;
+        let speed: MetersPerSecond = 6.0;
         match self {
             Direction::Forward => speed,
             Direction::Backward => -speed,
@@ -43,8 +43,8 @@ impl Direction {
     }
 }
 
-type Meters = i32;
-type MetersPerSecond = i32;
+type Meters = f32;
+type MetersPerSecond = f32;
 
 #[derive(Clone, Copy, Default)]
 struct JumpProgress {
@@ -67,7 +67,7 @@ impl JumpProgress {
             .map(|it| it as f32 * 2.0)
             .map(|it| it / JumpProgress::MAX as f32 * PI / 2.0)
             .map(|it| (it.sin() * height) as i32)
-            .unwrap_or(0)
+            .unwrap_or(0) as f32
     }
 
     fn new_jump(self) -> Self {
@@ -90,13 +90,14 @@ impl JumpProgress {
 }
 
 type Millis = i32;
+type Seconds = f32;
 
 struct State {
     direction: Direction,
     is_moving: bool,
     x: Meters,
     y: Meters,
-    dy: Meters,
+    dy: MetersPerSecond,
     jump_progress: JumpProgress,
     board: Board,
 }
@@ -104,9 +105,9 @@ struct State {
 impl Default for State {
     fn default() -> Self {
         State {
-            x: 0,
-            y: 100,
-            dy: 0,
+            x: 0.0,
+            y: 0.0,
+            dy: 0.0,
             direction: Direction::default(),
             is_moving: false,
             jump_progress: JumpProgress::default(),
@@ -141,7 +142,7 @@ impl State {
 
     fn jump(self) -> Self {
         State {
-            dy: 100,
+            dy: 5.0, // TODO: find a good value.
             jump_progress: self.jump_progress.new_jump(),
             ..self
         }
@@ -149,9 +150,9 @@ impl State {
 
     fn update(self, time_delta: Millis) -> Self {
         let x_delta = if self.is_moving {
-            time_delta * self.direction.speed()
+            time_delta as Seconds / 1000.0 * self.direction.speed()
         } else {
-            0
+            0.0
         };
         State {
             x: self.x + x_delta,
@@ -256,11 +257,11 @@ fn main() -> Result<(), String> {
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         canvas.fill_rect(Rect::new(0, 0, 300, 10))?;
 
-        // Draw character. TODO: Keep correct x and y in state.
-        let frame_offset = 32 * ((state.x / 100) % frames_per_anim);
+        // Draw character.
+        let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
-        character_dst.set_x(state.x);
-        character_dst.set_y(state.y);
+        character_dst.set_x((state.x * 20.0) as i32);
+        character_dst.set_y((state.y * 20.0) as i32);
         canvas.copy_ex(
             &texture,
             Some(character_src),
