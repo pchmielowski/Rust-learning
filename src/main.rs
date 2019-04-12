@@ -6,9 +6,9 @@ use std::path::Path;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
-use sdl2::pixels::Color;
 
 #[derive(Clone, Copy, PartialEq)]
 enum Direction {
@@ -168,14 +168,19 @@ fn main() -> Result<(), String> {
 
         state = state.update(delta.num_milliseconds() as Millis);
 
-        source_rect_2.set_x(32 * ((state.x / 100) % frames_per_anim));
-        dest_rect_2.set_x(1 * ((state.x / 10) % 768) - 128);
-        let floor = 300;
-        dest_rect_2.set_y(floor - state.y);
+        // Clear surface.
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
+
+        // Draw platforms. TODO: Read from state.
         canvas.set_draw_color(Color::RGB(80, 80, 80));
-        canvas.fill_rect(Rect::new(0, source_rect_2.y(), 300, 10));
+        canvas.fill_rect(Rect::new(0, 0, 300, 10));
+
+        // Draw character. TODO: Keep correct x and y in state.
+        let frame_offset = 32 * ((state.x / 100) % frames_per_anim);
+        source_rect_2.set_x(frame_offset);
+        dest_rect_2.set_x(state.x);
+        dest_rect_2.set_y(state.y);
         canvas.copy_ex(
             &texture,
             Some(source_rect_2),
@@ -185,6 +190,7 @@ fn main() -> Result<(), String> {
             state.direction == Direction::Backward,
             false,
         )?;
+
         canvas.present();
     }
 
