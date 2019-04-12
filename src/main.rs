@@ -1,7 +1,9 @@
 extern crate sdl2;
 extern crate time;
 
+use std::cmp::min;
 use std::f32::consts::PI;
+use std::fmt::Debug;
 use std::path::Path;
 
 use sdl2::event::Event;
@@ -9,8 +11,6 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
-use std::fmt::Debug;
-use std::cmp::min;
 
 struct Platform {
     x: Meters,
