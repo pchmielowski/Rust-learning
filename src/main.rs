@@ -74,6 +74,10 @@ impl Default for State {
     }
 }
 
+fn millis_to_seconds(millis: Millis) -> Seconds {
+    millis as Seconds / 1000.0
+}
+
 impl State {
     fn go_in_direction(self, direction: Direction) -> Self {
         if self.is_jumping {
@@ -114,7 +118,7 @@ impl State {
     }
 
     fn update(self, time_delta: Millis) -> Self {
-        let seconds = time_delta as Seconds / 1000.0;
+        let seconds = millis_to_seconds(time_delta);
         let x_delta = if self.is_moving {
             seconds * self.direction.speed()
         } else {
