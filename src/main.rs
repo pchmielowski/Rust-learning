@@ -10,6 +10,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
 use std::fmt::Debug;
+use std::cmp::min;
 
 struct Platform {
     x: Meters,
@@ -97,7 +98,7 @@ impl State {
 
     fn jump(self) -> Self {
         State {
-            dy: 5.0, // TODO: find a good value.
+            dy: 70.0,
             ..self
         }
     }
@@ -109,9 +110,11 @@ impl State {
         } else {
             0.0
         };
+        let g = 9.81; // m/s^2
         State {
             x: self.x + x_delta,
-            y: self.y + self.dy * seconds,
+            y: (self.y + self.dy * seconds).max(0.0),
+            dy: self.dy - g * seconds,
             ..self
         }
     }
