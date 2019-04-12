@@ -117,9 +117,9 @@ fn main() -> Result<(), String> {
     let frames_per_anim = 4;
     let sprite_tile_size = (32, 32);
 
-    let mut source_rect_2 = Rect::new(0, 64, sprite_tile_size.0, sprite_tile_size.0);
-    let mut dest_rect_2 = Rect::new(0, 64, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
-    dest_rect_2.center_on(Point::new(440, 360));
+    let mut character_src = Rect::new(0, 64, sprite_tile_size.0, sprite_tile_size.0);
+    let mut character_dst = Rect::new(0, 64, sprite_tile_size.0 * 4, sprite_tile_size.0 * 4);
+    character_dst.center_on(Point::new(440, 360));
 
     let mut time = time::now();
 
@@ -178,13 +178,13 @@ fn main() -> Result<(), String> {
 
         // Draw character. TODO: Keep correct x and y in state.
         let frame_offset = 32 * ((state.x / 100) % frames_per_anim);
-        source_rect_2.set_x(frame_offset);
-        dest_rect_2.set_x(state.x);
-        dest_rect_2.set_y(state.y);
+        character_src.set_x(frame_offset);
+        character_dst.set_x(state.x);
+        character_dst.set_y(state.y);
         canvas.copy_ex(
             &texture,
-            Some(source_rect_2),
-            Some(dest_rect_2),
+            Some(character_src),
+            Some(character_dst),
             0.0,
             None,
             state.direction == Direction::Backward,
