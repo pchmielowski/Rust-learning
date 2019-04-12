@@ -10,10 +10,26 @@ use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
 
+struct Platform {
+    x: Position,
+    y: Position,
+    width: Position,
+    height: Position,
+}
+
+#[derive(Default)]
+struct Board {
+    platforms: Vec<Platform>,
+}
+
 #[derive(Clone, Copy, PartialEq)]
 enum Direction {
     Forward,
     Backward,
+}
+
+impl Default for Direction {
+    fn default() -> Self { Direction::Forward }
 }
 
 impl Direction {
@@ -27,8 +43,10 @@ impl Direction {
 
 type Position = i32;
 
-#[derive(Clone, Copy)]
-struct JumpProgress { value: Option<i32> }
+#[derive(Clone, Copy, Default)]
+struct JumpProgress {
+    value: Option<i32>,
+}
 
 impl JumpProgress {
     const MAX: i32 = 1000;
@@ -36,7 +54,13 @@ impl JumpProgress {
     fn y(self) -> Position {
         let height = 200.0;
         self.value
-            .map(|it| if it > JumpProgress::MAX / 2 { JumpProgress::MAX - it } else { it })
+            .map(|it| {
+                if it > JumpProgress::MAX / 2 {
+                    JumpProgress::MAX - it
+                } else {
+                    it
+                }
+            })
             .map(|it| it as f32 * 2.0)
             .map(|it| it / JumpProgress::MAX as f32 * PI / 2.0)
             .map(|it| (it.sin() * height) as i32)
@@ -44,46 +68,73 @@ impl JumpProgress {
     }
 
     fn new_jump(self) -> Self {
-        Self { value: self.value.or(Some(0)) }
+        Self {
+            value: self.value.or(Some(0)),
+        }
     }
 
     fn update(self, time_delta: Millis) -> Self {
         Self {
-            value: self.value
-                .and_then(|it| if it >= JumpProgress::MAX { None } else { Some(it + time_delta) })
+            value: self.value.and_then(|it| {
+                if it >= JumpProgress::MAX {
+                    None
+                } else {
+                    Some(it + time_delta)
+                }
+            }),
         }
     }
 }
 
 type Millis = i32;
 
+#[derive(Default)]
 struct State {
     direction: Direction,
     is_moving: bool,
     x: Position,
     y: Position,
     jump_progress: JumpProgress,
+    board: Board,
 }
 
 impl State {
     fn go_forward(self) -> Self {
-        State { direction: Direction::Forward, is_moving: true, ..self }
+        State {
+            direction: Direction::Forward,
+            is_moving: true,
+            ..self
+        }
     }
 
     fn go_backward(self) -> Self {
-        State { direction: Direction::Backward, is_moving: true, ..self }
+        State {
+            direction: Direction::Backward,
+            is_moving: true,
+            ..self
+        }
     }
 
     fn stop(self) -> Self {
-        State { is_moving: false, ..self }
+        State {
+            is_moving: false,
+            ..self
+        }
     }
 
     fn jump(self) -> Self {
-        State { jump_progress: self.jump_progress.new_jump(), ..self }
+        State {
+            jump_progress: self.jump_progress.new_jump(),
+            ..self
+        }
     }
 
     fn update(self, time_delta: Millis) -> Self {
-        let x_delta = if self.is_moving { time_delta * self.direction.get_delta() } else { 0 };
+        let x_delta = if self.is_moving {
+            time_delta * self.direction.get_delta()
+        } else {
+            0
+        };
         State {
             x: self.x + x_delta,
             y: self.jump_progress.y(),
@@ -97,19 +148,26 @@ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("SDL2", 640, 480)
-        .position_centered().build().map_err(|e| e.to_string())?;
+    let window = video_subsystem
+        .window("SDL2", 640, 480)
+        .position_centered()
+        .build()
+        .map_err(|e| e.to_string())?;
 
-    let mut canvas = window.into_canvas()
-        .accelerated().build().map_err(|e| e.to_string())?;
+    let mut canvas = window
+        .into_canvas()
+        .accelerated()
+        .build()
+        .map_err(|e| e.to_string())?;
     let texture_creator = canvas.texture_creator();
 
     let mut event_pump = sdl_context.event_pump()?;
 
-// animation sheet and extras are available from
-// https://opengameart.org/content/a-platformer-in-the-forest
+    // animation sheet and extras are available from
+    // https://opengameart.org/content/a-platformer-in-the-forest
     let temp_surface = sdl2::surface::Surface::load_bmp(Path::new("assets/characters.bmp"))?;
-    let texture = texture_creator.create_texture_from_surface(&temp_surface)
+    let texture = texture_creator
+        .create_texture_from_surface(&temp_surface)
         .map_err(|e| e.to_string())?;
 
     let frames_per_anim = 4;
@@ -121,18 +179,16 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state = State {
-        direction: Direction::Forward,
-        is_moving: false,
-        x: 0,
-        y: 0,
-        jump_progress: JumpProgress { value: None },
-    };
+    let mut state :State= Default::default();
 
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => {
                     break 'main;
                 }
                 Event::KeyDown { keycode, .. } => {
@@ -140,20 +196,26 @@ fn main() -> Result<(), String> {
                         Some(Keycode::Left) => state.go_backward(),
                         Some(Keycode::Right) => state.go_forward(),
                         Some(Keycode::Space) => state.jump(),
-                        _ => state
+                        _ => state,
                     };
                 }
                 Event::KeyUp { keycode, .. } => {
                     state = match keycode {
-                        Some(Keycode::Left) =>
+                        Some(Keycode::Left) => {
                             if state.direction == Direction::Backward {
                                 state.stop()
-                            } else { state },
-                        Some(Keycode::Right) =>
+                            } else {
+                                state
+                            }
+                        }
+                        Some(Keycode::Right) => {
                             if state.direction == Direction::Forward {
                                 state.stop()
-                            } else { state },
-                        _ => state
+                            } else {
+                                state
+                            }
+                        }
+                        _ => state,
                     };
                 }
                 _ => {}
@@ -172,7 +234,7 @@ fn main() -> Result<(), String> {
 
         // Draw platforms. TODO: Read from state.
         canvas.set_draw_color(Color::RGB(80, 80, 80));
-        canvas.fill_rect(Rect::new(0, 0, 300, 10));
+        canvas.fill_rect(Rect::new(0, 0, 300, 10))?;
 
         // Draw character. TODO: Keep correct x and y in state.
         let frame_offset = 32 * ((state.x / 100) % frames_per_anim);
