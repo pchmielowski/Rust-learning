@@ -94,6 +94,7 @@ struct State {
     is_moving: bool,
     x: Position,
     y: Position,
+    dy: Position,
     jump_progress: JumpProgress,
     board: Board,
 }
@@ -103,6 +104,7 @@ impl Default for State {
         State {
             x: 0,
             y: 100,
+            dy: 0,
             direction: Direction::default(),
             is_moving: false,
             jump_progress: JumpProgress::default(),
@@ -137,6 +139,7 @@ impl State {
 
     fn jump(self) -> Self {
         State {
+            dy: 100,
             jump_progress: self.jump_progress.new_jump(),
             ..self
         }
