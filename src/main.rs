@@ -95,9 +95,13 @@ impl State {
     }
 
     fn stop(self) -> Self {
-        State {
-            is_moving: false,
-            ..self
+        if self.is_jumping {
+            self
+        } else {
+            State {
+                is_moving: false,
+                ..self
+            }
         }
     }
 
