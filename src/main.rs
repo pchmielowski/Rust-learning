@@ -235,7 +235,7 @@ fn main() -> Result<(), String> {
         character_src.set_x(frame_offset);
         let speed_ratio = 40.0;
         character_dst.set_x((state.x * speed_ratio) as i32);
-        character_dst.set_y((state.y * speed_ratio) as i32);
+        character_dst.set_y(height as i32 - ((state.y * speed_ratio) as i32));
         canvas.copy_ex(
             &texture,
             Some(character_src),
