@@ -98,7 +98,7 @@ impl State {
 
     fn jump(self) -> Self {
         State {
-            dy: 70.0,
+            dy: 7.0,
             ..self
         }
     }
@@ -217,8 +217,9 @@ fn main() -> Result<(), String> {
         // Draw character.
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
-        character_dst.set_x((state.x * 20.0) as i32);
-        character_dst.set_y((state.y * 20.0) as i32);
+        let speed_ratio = 40.0;
+        character_dst.set_x((state.x * speed_ratio) as i32);
+        character_dst.set_y((state.y * speed_ratio) as i32);
         canvas.copy_ex(
             &texture,
             Some(character_src),
