@@ -8,7 +8,7 @@ edition = "2018"
 sdl2 = "0.32"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-sdl2 = { version = "0.32.0", features = ["bundled", "static-link"] }
+#sdl2 = { version = "0.32.0", features = ["bundled", "static-link"] }
 
 [dependencies]
 rand = "0.6.5"
