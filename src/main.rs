@@ -104,8 +104,6 @@ fn main() -> Result<(), String> {
         .accelerated().build().map_err(|e| e.to_string())?;
     let texture_creator = canvas.texture_creator();
 
-    canvas.set_draw_color(sdl2::pixels::Color::RGBA(0, 0, 0, 255));
-
     let mut event_pump = sdl_context.event_pump()?;
 
 // animation sheet and extras are available from
