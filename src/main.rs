@@ -179,7 +179,7 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state :State= Default::default();
+    let mut state: State = Default::default();
 
     'main: loop {
         for event in event_pump.poll_iter() {
