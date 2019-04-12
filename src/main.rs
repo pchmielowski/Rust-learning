@@ -46,49 +46,6 @@ impl Direction {
 type Meters = f32;
 type MetersPerSecond = f32;
 
-#[derive(Clone, Copy, Default)]
-struct JumpProgress {
-    value: Option<i32>,
-}
-
-impl JumpProgress {
-    const MAX: i32 = 1000;
-
-    fn y(self) -> Meters {
-        let height = 200.0;
-        self.value
-            .map(|it| {
-                if it > JumpProgress::MAX / 2 {
-                    JumpProgress::MAX - it
-                } else {
-                    it
-                }
-            })
-            .map(|it| it as f32 * 2.0)
-            .map(|it| it / JumpProgress::MAX as f32 * PI / 2.0)
-            .map(|it| (it.sin() * height) as i32)
-            .unwrap_or(0) as f32
-    }
-
-    fn new_jump(self) -> Self {
-        Self {
-            value: self.value.or(Some(0)),
-        }
-    }
-
-    fn update(self, time_delta: Millis) -> Self {
-        Self {
-            value: self.value.and_then(|it| {
-                if it >= JumpProgress::MAX {
-                    None
-                } else {
-                    Some(it + time_delta)
-                }
-            }),
-        }
-    }
-}
-
 type Millis = i32;
 type Seconds = f32;
 
@@ -98,7 +55,6 @@ struct State {
     x: Meters,
     y: Meters,
     dy: MetersPerSecond,
-    jump_progress: JumpProgress,
     board: Board,
 }
 
@@ -110,7 +66,6 @@ impl Default for State {
             dy: 0.0,
             direction: Direction::default(),
             is_moving: false,
-            jump_progress: JumpProgress::default(),
             board: Board::default(),
         }
     }
@@ -143,21 +98,20 @@ impl State {
     fn jump(self) -> Self {
         State {
             dy: 5.0, // TODO: find a good value.
-            jump_progress: self.jump_progress.new_jump(),
             ..self
         }
     }
 
     fn update(self, time_delta: Millis) -> Self {
+        let seconds = time_delta as Seconds / 1000.0;
         let x_delta = if self.is_moving {
-            time_delta as Seconds / 1000.0 * self.direction.speed()
+            seconds * self.direction.speed()
         } else {
             0.0
         };
         State {
             x: self.x + x_delta,
-            y: self.jump_progress.y(),
-            jump_progress: self.jump_progress.update(time_delta),
+            y: self.y + self.dy * seconds,
             ..self
         }
     }
