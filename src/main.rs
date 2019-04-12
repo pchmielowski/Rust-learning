@@ -9,6 +9,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
+use std::fmt::Debug;
 
 struct Platform {
     x: Position,
@@ -88,7 +89,6 @@ impl JumpProgress {
 
 type Millis = i32;
 
-#[derive(Default)]
 struct State {
     direction: Direction,
     is_moving: bool,
@@ -96,6 +96,19 @@ struct State {
     y: Position,
     jump_progress: JumpProgress,
     board: Board,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        State {
+            x: 0,
+            y: 100,
+            direction: Direction::default(),
+            is_moving: false,
+            jump_progress: JumpProgress::default(),
+            board: Board::default(),
+        }
+    }
 }
 
 impl State {
@@ -147,9 +160,11 @@ impl State {
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
+    let width = 640;
+    let height = 480;
 
     let window = video_subsystem
-        .window("SDL2", 640, 480)
+        .window("SDL2", width, height)
         .position_centered()
         .build()
         .map_err(|e| e.to_string())?;
