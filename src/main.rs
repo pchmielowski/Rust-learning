@@ -25,7 +25,7 @@ type CoinValue = u8;
 struct Coin {
     x: Meters,
     y: Meters,
-    #[allow(dead_code)]
+    #[allow(dead_code)] // TODO!
     value: CoinValue,
 }
 
