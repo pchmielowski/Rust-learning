@@ -202,9 +202,9 @@ pub mod lib {
                     Platform { x_from: x - 1.0, x_to: x + 1.0, y: 1.0 },
                     Platform { x_from: x - 2.0, x_to: x + 0.5, y: 1.5 },
                     Platform { x_from: x + 2.0, x_to: x + 7.5, y: 3.0 },
-                ]
+                ],
+                coins: vec![]
             },
-            scroll_y: 0.0,
         };
         assert_eq!(state.platform_below(), 1.5);
     }
