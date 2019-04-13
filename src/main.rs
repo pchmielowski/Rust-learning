@@ -293,7 +293,7 @@ fn main() -> Result<(), String> {
         // Draw platforms.
         let platform_height = 0.2;
 
-        let apply_scroll = |position: Meters| {
+        let apply_scroll = |position| {
             let bottom_margin = 0.5;
             position - state.scroll_y + bottom_margin
         };
