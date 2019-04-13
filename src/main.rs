@@ -30,18 +30,13 @@ impl Platform {
 
 impl Default for Board {
     fn default() -> Self {
+        let to_platform = |n| Platform {
+            x_from: (n * 2 - 1) as f32,
+            x_to: (n * 2 + 1) as f32,
+            y: n as f32,
+        };
         Board {
-            platforms: vec![
-                Platform {
-                    x_from: 0.0,
-                    x_to: 6.0,
-                    y: 2.0,
-                },
-                Platform {
-                    x_from: 4.0,
-                    x_to: 10.0,
-                    y: 0.0,
-                }]
+            platforms: (0..10).map(to_platform).collect()
         }
     }
 }
