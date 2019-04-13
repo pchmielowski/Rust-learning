@@ -3,8 +3,6 @@
 extern crate sdl2;
 extern crate time;
 
-use std::cmp::Ordering;
-use std::f32::MIN;
 use std::path::Path;
 
 use sdl2::event::Event;
@@ -12,11 +10,7 @@ use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use hello_rust::lib;
-use hello_rust::lib::Direction;
-use hello_rust::lib::Meters;
-use hello_rust::lib::State;
-use hello_rust::lib::Millis;
+
 use hello_rust::lib::*;
 
 fn main() -> Result<(), String> {
@@ -57,7 +51,7 @@ fn main() -> Result<(), String> {
 
     let mut time = time::now();
 
-    let mut state: lib::State = Default::default();
+    let mut state: State = Default::default();
 
     'main: loop {
         for event in event_pump.poll_iter() {
