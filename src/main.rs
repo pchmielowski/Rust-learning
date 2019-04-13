@@ -16,12 +16,22 @@ struct Platform {
     x: Meters,
     y: Meters,
     width: Meters,
-    height: Meters,
 }
 
-#[derive(Default)]
 struct Board {
     platforms: Vec<Platform>,
+}
+
+impl Default for Board {
+    fn default() -> Self {
+        Board {
+            platforms: vec![Platform {
+                x: 0.0,
+                y: 0.0,
+                width: 10.0,
+            }]
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -169,7 +179,6 @@ fn main() -> Result<(), String> {
 
     let mut character_src = Rect::new(0, 64, sprite_tile_size, sprite_tile_size);
     let mut character_dst = Rect::new(0, 64, sprite_tile_size * 4, sprite_tile_size * 4);
-    character_dst.center_on(Point::new(440, 360));
 
     let mut time = time::now();
 
@@ -226,16 +235,21 @@ fn main() -> Result<(), String> {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
-        // Draw platforms. TODO: Read from state.
+        // Draw platforms.
         canvas.set_draw_color(Color::RGB(80, 80, 80));
-        canvas.fill_rect(Rect::new(0, 0, 300, 10))?;
+        let platform_height = 0.5;
+        for platform in state.board.platforms.iter() {
+            canvas.fill_rect(Rect::new(platform.x.to_pixels(),
+                                       platform.y.to_pixels(),
+                                       platform.width.to_pixels() as u32,
+                                       platform_height.to_pixels() as u32))?;
+        }
 
         // Draw character.
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
-        let speed_ratio = 60.0;
-        character_dst.set_x((state.x * speed_ratio) as i32);
-        character_dst.set_y((height - sprite_tile_size * 4) as i32 - ((state.y * speed_ratio) as i32));
+        character_dst.set_x(state.x.to_pixels());
+        character_dst.set_y((height - sprite_tile_size * 4) as i32 - state.y.to_pixels());
         canvas.copy_ex(
             &texture,
             Some(character_src),
@@ -250,4 +264,14 @@ fn main() -> Result<(), String> {
     }
 
     Ok(())
+}
+
+trait ToPixels {
+    fn to_pixels(self) -> i32;
+}
+
+impl ToPixels for Meters {
+    fn to_pixels(self) -> i32 {
+        (self * 60.0) as i32
+    }
 }
