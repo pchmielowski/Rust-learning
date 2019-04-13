@@ -1,4 +1,4 @@
-#![deny(warnings)]
+//#![deny(warnings)]
 
 extern crate sdl2;
 extern crate time;
@@ -11,6 +11,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use std::f32::MIN;
+use sdl2::gfx::primitives::DrawRenderer;
 
 #[derive(Clone, Copy)]
 struct Platform {
@@ -19,8 +20,17 @@ struct Platform {
     y: Meters,
 }
 
+type CoinValue = u8;
+
+struct Coin {
+    x: Meters,
+    y: Meters,
+    value: CoinValue,
+}
+
 struct Board {
     platforms: Vec<Platform>,
+    coins: Vec<Coin>,
 }
 
 impl Platform {
@@ -31,13 +41,20 @@ impl Platform {
 
 impl Default for Board {
     fn default() -> Self {
+        let size = 20;
         let to_platform = |n: i32| Platform {
-            x_from: (n * 2 - 1) as f32,
-            x_to: (n * 2 + 1) as f32,
+            x_from: (n * size - size / 2) as f32,
+            x_to: (n * size + size / 2) as f32,
             y: (-n) as f32,
         };
+        let to_coins = |n: i32| Coin {
+            x: (n * size) as f32,
+            y: (-n + 1) as f32,
+            value: n as u8,
+        };
         Board {
-            platforms: (0..10).map(to_platform).collect()
+            platforms: (0..10).map(to_platform).collect(),
+            coins: (0..10).map(to_coins).collect(),
         }
     }
 }
@@ -303,8 +320,6 @@ fn main() -> Result<(), String> {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
-        // Draw platforms.
-        let platform_height = 0.2;
 
         let apply_scroll_y = |y: Meters| {
             (y - state.y).to_pixels() + height as i32 / 2
@@ -313,6 +328,8 @@ fn main() -> Result<(), String> {
             (x - state.x).to_pixels() + width as i32 / 2
         };
 
+        // Draw platforms.
+        let platform_height = 0.2;
         let base_y = (height - sprite_dst_tile_size) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
@@ -322,6 +339,16 @@ fn main() -> Result<(), String> {
                 platform.width().to_pixels() as u32,
                 platform_height.to_pixels() as u32,
             ))?;
+        }
+
+        // Draw coins.
+        for coin in state.board.coins.iter() {
+            canvas.filled_circle(
+                apply_scroll_x(coin.x) as i16,
+                (base_y - apply_scroll_y(coin.y)) as i16,
+                10,
+                Color::RGB(255, 128, 0),
+            )?;
         }
 
         // Draw character.
