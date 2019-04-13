@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/pchmielowski/Rust-learning.svg?branch=master)](https://travis-ci.org/pchmielowski/Rust-learning)
 
-##Steps to run on WSL
+## Steps to run on WSL
 
 1. Install dependencies (see `.travis.yml`, also add `cmake`).
 
