@@ -75,7 +75,7 @@ type Seconds = f32;
 struct State {
     direction: Direction,
     is_moving: bool,
-    is_not_on_platform: bool,
+    is_on_ground: bool,
     x: Meters,
     y: Meters,
     speed_y: MetersPerSecond,
@@ -90,7 +90,7 @@ impl Default for State {
             speed_y: 0.0,
             direction: Direction::default(),
             is_moving: false,
-            is_not_on_platform: false,
+            is_on_ground: false,
             board: Board::default(),
         }
     }
@@ -102,14 +102,14 @@ fn millis_to_seconds(millis: Millis) -> Seconds {
 
 impl State {
     fn go_in_direction(self, direction: Direction) -> Self {
-        if self.is_not_on_platform {
-            self
-        } else {
+        if self.is_on_ground {
             State {
                 direction,
                 is_moving: true,
                 ..self
             }
+        } else {
+            self
         }
     }
     fn go_forward(self) -> Self {
@@ -121,20 +121,19 @@ impl State {
     }
 
     fn stop(self) -> Self {
-        if self.is_not_on_platform {
-            self
-        } else {
+        if self.is_on_ground {
             State {
                 is_moving: false,
                 ..self
             }
+        } else {
+            self
         }
     }
 
     fn jump(self) -> Self {
         State {
             speed_y: 7.0,
-            is_not_on_platform: true,
             ..self
         }
     }
@@ -147,11 +146,12 @@ impl State {
             0.0
         };
         let g = 9.81; // m/s^2
-        let y = (self.y + self.speed_y * seconds).max(self.platform_below());
+        let platform_below = self.platform_below();
+        let y = (self.y + self.speed_y * seconds).max(platform_below);
         State {
             x: self.x + x_delta,
             y,
-            is_not_on_platform: y != 0.0,
+            is_on_ground: y == platform_below,
             speed_y: self.speed_y - g * seconds,
             ..self
         }
@@ -177,7 +177,7 @@ fn finds_platform_below() {
         speed_y: 0.0,
         direction: Direction::default(),
         is_moving: false,
-        is_not_on_platform: false,
+        is_on_ground: false,
         board: Board {
             platforms: vec![
                 Platform { x_from: x - 1.0, x_to: x + 1.0, y: 100.0 },
