@@ -184,6 +184,16 @@ fn finds_platform_below() {
     assert_eq!(state.platform_below(), 1.5);
 }
 
+trait ToPixels {
+    fn to_pixels(self) -> i32;
+}
+
+impl ToPixels for Meters {
+    fn to_pixels(self) -> i32 {
+        (self * 60.0) as i32
+    }
+}
+
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -307,14 +317,4 @@ fn main() -> Result<(), String> {
     }
 
     Ok(())
-}
-
-trait ToPixels {
-    fn to_pixels(self) -> i32;
-}
-
-impl ToPixels for Meters {
-    fn to_pixels(self) -> i32 {
-        (self * 60.0) as i32
-    }
 }
