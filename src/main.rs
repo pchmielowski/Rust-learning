@@ -9,24 +9,32 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 
 use std::path::Path;
+use std::cmp::Ordering;
 
+#[derive(Clone, Copy)]
 struct Platform {
-    x: Meters,
+    x_from: Meters,
+    x_to: Meters,
     y: Meters,
-    width: Meters,
 }
 
 struct Board {
     platforms: Vec<Platform>,
 }
 
+impl Platform {
+    fn width(self) -> Meters {
+        self.x_to - self.x_from
+    }
+}
+
 impl Default for Board {
     fn default() -> Self {
         Board {
             platforms: vec![Platform {
-                x: 0.0,
+                x_from: 0.0,
+                x_to: 10.0,
                 y: 0.0,
-                width: 10.0,
             }]
         }
     }
@@ -142,7 +150,40 @@ impl State {
             ..self
         }
     }
+
+    fn platform_below(self) -> Meters {
+        let mut vec: Vec<Meters> = self.board.platforms.iter()
+            .filter(|platform| platform.x_from <= self.x && platform.x_to >= self.x)
+            .filter(|platform| platform.y <= self.y)
+            .map(|platform| platform.y)
+            .collect();
+        vec.sort_by(|a, b| b.partial_cmp(a).unwrap_or(Ordering::Equal));
+        *vec.first().ok_or("No ground below!").unwrap()
+    }
 }
+
+#[test]
+fn finds_platform_below() {
+    let x = 5.0;
+    let state = State {
+        x,
+        y: 2.0,
+        speed_y: 0.0,
+        direction: Direction::default(),
+        is_moving: false,
+        is_not_on_platform: false,
+        board: Board {
+            platforms: vec![
+                Platform { x_from: x - 1.0, x_to: x + 1.0, y: 100.0 },
+                Platform { x_from: x - 1.0, x_to: x + 1.0, y: 1.0 },
+                Platform { x_from: x - 2.0, x_to: x + 0.5, y: 1.5 },
+                Platform { x_from: x + 2.0, x_to: x + 7.5, y: 3.0 },
+            ]
+        },
+    };
+    assert_eq!(state.platform_below(), 1.5);
+}
+
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -239,10 +280,12 @@ fn main() -> Result<(), String> {
         let base_y = (height - sprite_tile_size * 4) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
-            canvas.fill_rect(Rect::new(platform.x.to_pixels(),
-                                       (height as i32) - platform.y.to_pixels() - platform_height.to_pixels(),
-                                       platform.width.to_pixels() as u32,
-                                       platform_height.to_pixels() as u32))?;
+            canvas.fill_rect(Rect::new(
+                platform.x_from.to_pixels(),
+                (height as i32) - platform.y.to_pixels() - platform_height.to_pixels(),
+                platform.width().to_pixels() as u32,
+                platform_height.to_pixels() as u32,
+            ))?;
         }
 
         // Draw character.
