@@ -31,11 +31,17 @@ impl Platform {
 impl Default for Board {
     fn default() -> Self {
         Board {
-            platforms: vec![Platform {
-                x_from: 0.0,
-                x_to: 10.0,
-                y: 0.0,
-            }]
+            platforms: vec![
+                Platform {
+                    x_from: 0.0,
+                    x_to: 6.0,
+                    y: 2.0,
+                },
+                Platform {
+                    x_from: 4.0,
+                    x_to: 10.0,
+                    y: 0.0,
+                }]
         }
     }
 }
@@ -80,7 +86,7 @@ impl Default for State {
     fn default() -> Self {
         State {
             x: 0.0,
-            y: 2.0,
+            y: 10.0,
             speed_y: 0.0,
             direction: Direction::default(),
             is_moving: false,
@@ -286,7 +292,7 @@ fn main() -> Result<(), String> {
         canvas.clear();
 
         // Draw platforms.
-        let platform_height = 0.5;
+        let platform_height = 0.2;
 
         let base_y = (height - sprite_tile_size * 4) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
