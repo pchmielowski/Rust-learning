@@ -10,6 +10,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use std::f32::MIN;
 
 #[derive(Clone, Copy)]
 struct Platform {
@@ -144,15 +145,28 @@ impl State {
         };
         let g = 9.81; // m/s^2
         let platform_below = self.platform_below();
+        let platform_on_left = self.platform_on_left()
+            .map_or(MIN, |platform| platform.x_to);
+        let x = (self.x + x_delta).max(platform_on_left);
         let y = (self.y + self.speed_y * seconds).max(platform_below);
         State {
-            x: self.x + x_delta,
+            x,
             y,
             is_on_ground: y == platform_below,
             speed_y: self.speed_y - g * seconds,
             scroll_y: y,
             ..self
         }
+    }
+
+    fn platform_on_left(&self) -> Option<Platform> {
+        let mut vec: Vec<&Platform> = self.board.platforms.iter()
+            .filter(|platform| platform.y >= self.y)
+            .filter(|platform| platform.x_to <= self.x)
+            .collect();
+        // TODO: Cleanup usage of & and * because I don't think it should be written this way.
+        vec.sort_by(|a, b| (**b).x_to.partial_cmp(&(**a).x_to).unwrap_or(Ordering::Equal));
+        vec.first().map(|platform| **platform)
     }
 
     fn platform_below(&self) -> Meters {
