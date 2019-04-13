@@ -76,7 +76,6 @@ struct State {
     y: Meters,
     speed_y: MetersPerSecond,
     board: Board,
-    scroll_y: Meters,
 }
 
 impl Default for State {
@@ -89,7 +88,6 @@ impl Default for State {
             is_moving: false,
             is_on_ground: false,
             board: Board::default(),
-            scroll_y: 0.0,
         }
     }
 }
@@ -154,7 +152,6 @@ impl State {
             y,
             is_on_ground: y == platform_below,
             speed_y: self.speed_y - g * seconds,
-            scroll_y: y,
             ..self
         }
     }
@@ -309,20 +306,19 @@ fn main() -> Result<(), String> {
         // Draw platforms.
         let platform_height = 0.2;
 
-        let apply_scroll_y = |position| {
-            let bottom_margin = 0.5;
-            position - state.scroll_y + bottom_margin
+        let apply_scroll_y = |y: Meters| {
+            (y - state.y).to_pixels() + height as i32 / 2
         };
-        let apply_scroll_x = |x| {
-            x - state.x
+        let apply_scroll_x = |x: Meters| {
+            (x - state.x).to_pixels() + width as i32 / 2
         };
 
         let base_y = (height - sprite_dst_tile_size) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
             canvas.fill_rect(Rect::new(
-                apply_scroll_x(platform.x_from).to_pixels() + width as i32 / 2,
-                (height as i32) - apply_scroll_y(platform.y).to_pixels() - platform_height.to_pixels(),
+                apply_scroll_x(platform.x_from),
+                (height as i32) - apply_scroll_y(platform.y) - platform_height.to_pixels(),
                 platform.width().to_pixels() as u32,
                 platform_height.to_pixels() as u32,
             ))?;
@@ -332,7 +328,7 @@ fn main() -> Result<(), String> {
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
         character_dst.set_x((width / 2) as i32 - sprite_dst_tile_size as i32 / 2);
-        character_dst.set_y(base_y - apply_scroll_y(state.y).to_pixels());
+        character_dst.set_y(base_y - apply_scroll_y(state.y));
         canvas.copy_ex(
             &texture,
             Some(character_src),
