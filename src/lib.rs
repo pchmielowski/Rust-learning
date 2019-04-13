@@ -1,18 +1,8 @@
-//#![deny(warnings)]
-
-extern crate sdl2;
-extern crate time;
+#![deny(warnings)]
 
 pub mod lib {
     use std::cmp::Ordering;
     use std::f32::MIN;
-    use std::path::Path;
-
-    use sdl2::event::Event;
-    use sdl2::gfx::primitives::DrawRenderer;
-    use sdl2::keyboard::Keycode;
-    use sdl2::pixels::Color;
-    use sdl2::rect::Rect;
 
     #[derive(Clone, Copy)]
     pub struct Platform {
