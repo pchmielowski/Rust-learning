@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 extern crate sdl2;
 extern crate time;
 
@@ -59,7 +61,7 @@ type Seconds = f32;
 struct State {
     direction: Direction,
     is_moving: bool,
-    is_jumping: bool,
+    is_not_on_platform: bool,
     x: Meters,
     y: Meters,
     speed_y: MetersPerSecond,
@@ -70,11 +72,11 @@ impl Default for State {
     fn default() -> Self {
         State {
             x: 0.0,
-            y: 0.0,
+            y: 2.0,
             speed_y: 0.0,
             direction: Direction::default(),
             is_moving: false,
-            is_jumping: false,
+            is_not_on_platform: false,
             board: Board::default(),
         }
     }
@@ -86,7 +88,7 @@ fn millis_to_seconds(millis: Millis) -> Seconds {
 
 impl State {
     fn go_in_direction(self, direction: Direction) -> Self {
-        if self.is_jumping {
+        if self.is_not_on_platform {
             self
         } else {
             State {
@@ -105,7 +107,7 @@ impl State {
     }
 
     fn stop(self) -> Self {
-        if self.is_jumping {
+        if self.is_not_on_platform {
             self
         } else {
             State {
@@ -118,7 +120,7 @@ impl State {
     fn jump(self) -> Self {
         State {
             speed_y: 7.0,
-            is_jumping: true,
+            is_not_on_platform: true,
             ..self
         }
     }
@@ -135,7 +137,7 @@ impl State {
         State {
             x: self.x + x_delta,
             y,
-            is_jumping: y != 0.0,
+            is_not_on_platform: y != 0.0,
             speed_y: self.speed_y - g * seconds,
             ..self
         }
