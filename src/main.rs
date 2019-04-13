@@ -185,6 +185,7 @@ fn finds_platform_below() {
 }
 
 trait ToPixels {
+    //noinspection RsSelfConvention
     fn to_pixels(self) -> i32;
 }
 
