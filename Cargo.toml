@@ -9,9 +9,7 @@ version = "0.32"
 default-features = false
 features = ["gfx"]
 
-#[target.'cfg(target_os = "linux")'.dependencies]
-#sdl2 = "0.32"
-
+# For Windows. TODO: Do something with this ugly comment.
 #[target.'cfg(target_os = "windows")'.dependencies]
 #sdl2 = { version = "0.32.0", features = ["bundled", "static-link"] }
 
