@@ -1,4 +1,4 @@
-//#![deny(warnings)]
+#![deny(warnings)]
 
 extern crate sdl2;
 extern crate time;
@@ -25,6 +25,7 @@ type CoinValue = u8;
 struct Coin {
     x: Meters,
     y: Meters,
+    #[allow(dead_code)]
     value: CoinValue,
 }
 
