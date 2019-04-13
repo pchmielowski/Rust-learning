@@ -1,16 +1,12 @@
 extern crate sdl2;
 extern crate time;
 
-use std::cmp::min;
-use std::f32::consts::PI;
-use std::fmt::Debug;
-use std::path::Path;
-
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use sdl2::rect::Rect;
+
+use std::path::Path;
 
 struct Platform {
     x: Meters,
@@ -237,7 +233,8 @@ fn main() -> Result<(), String> {
 
         // Draw platforms.
         let platform_height = 0.5;
-        let base_y = (height - sprite_tile_size * 4) as i32-platform_height.to_pixels();
+
+        let base_y = (height - sprite_tile_size * 4) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
             canvas.fill_rect(Rect::new(platform.x.to_pixels(),
