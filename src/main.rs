@@ -141,7 +141,7 @@ impl State {
             0.0
         };
         let g = 9.81; // m/s^2
-        let y = (self.y + self.speed_y * seconds).max(0.0);
+        let y = (self.y + self.speed_y * seconds).max(self.platform_below());
         State {
             x: self.x + x_delta,
             y,
@@ -151,7 +151,7 @@ impl State {
         }
     }
 
-    fn platform_below(self) -> Meters {
+    fn platform_below(&self) -> Meters {
         let mut vec: Vec<Meters> = self.board.platforms.iter()
             .filter(|platform| platform.x_from <= self.x && platform.x_to >= self.x)
             .filter(|platform| platform.y <= self.y)
