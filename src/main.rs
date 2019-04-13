@@ -30,10 +30,10 @@ impl Platform {
 
 impl Default for Board {
     fn default() -> Self {
-        let to_platform = |n| Platform {
+        let to_platform = |n: i32| Platform {
             x_from: (n * 2 - 1) as f32,
             x_to: (n * 2 + 1) as f32,
-            y: n as f32,
+            y: (-n) as f32,
         };
         Board {
             platforms: (0..10).map(to_platform).collect()
