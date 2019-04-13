@@ -75,6 +75,7 @@ struct State {
     y: Meters,
     speed_y: MetersPerSecond,
     board: Board,
+    scroll_y: Meters,
 }
 
 impl Default for State {
@@ -87,6 +88,7 @@ impl Default for State {
             is_moving: false,
             is_on_ground: false,
             board: Board::default(),
+            scroll_y: 0.0,
         }
     }
 }
@@ -148,6 +150,7 @@ impl State {
             y,
             is_on_ground: y == platform_below,
             speed_y: self.speed_y - g * seconds,
+            scroll_y: y - 0.5/* margin on bottom */,
             ..self
         }
     }
@@ -181,6 +184,7 @@ fn finds_platform_below() {
                 Platform { x_from: x + 2.0, x_to: x + 7.5, y: 3.0 },
             ]
         },
+        scroll_y: 0.0,
     };
     assert_eq!(state.platform_below(), 1.5);
 }
@@ -294,7 +298,7 @@ fn main() -> Result<(), String> {
         for platform in state.board.platforms.iter() {
             canvas.fill_rect(Rect::new(
                 platform.x_from.to_pixels(),
-                (height as i32) - platform.y.to_pixels() - platform_height.to_pixels(),
+                (height as i32) - (platform.y - state.scroll_y).to_pixels() - platform_height.to_pixels(),
                 platform.width().to_pixels() as u32,
                 platform_height.to_pixels() as u32,
             ))?;
@@ -304,7 +308,7 @@ fn main() -> Result<(), String> {
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
         character_dst.set_x(state.x.to_pixels());
-        character_dst.set_y(base_y - state.y.to_pixels());
+        character_dst.set_y(base_y - (state.y - state.scroll_y).to_pixels());
         canvas.copy_ex(
             &texture,
             Some(character_src),
