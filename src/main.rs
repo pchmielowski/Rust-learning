@@ -3,13 +3,13 @@
 extern crate sdl2;
 extern crate time;
 
+use std::cmp::Ordering;
+use std::path::Path;
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-
-use std::path::Path;
-use std::cmp::Ordering;
 
 #[derive(Clone, Copy)]
 struct Platform {
@@ -150,7 +150,7 @@ impl State {
             y,
             is_on_ground: y == platform_below,
             speed_y: self.speed_y - g * seconds,
-            scroll_y: y - 0.5/* margin on bottom */,
+            scroll_y: y,
             ..self
         }
     }
@@ -293,12 +293,17 @@ fn main() -> Result<(), String> {
         // Draw platforms.
         let platform_height = 0.2;
 
+        let apply_scroll = |position: Meters| {
+            let bottom_margin = 0.5;
+            position - state.scroll_y + bottom_margin
+        };
+
         let base_y = (height - sprite_tile_size * 4) as i32 - platform_height.to_pixels();
         canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
             canvas.fill_rect(Rect::new(
                 platform.x_from.to_pixels(),
-                (height as i32) - (platform.y - state.scroll_y).to_pixels() - platform_height.to_pixels(),
+                (height as i32) - apply_scroll(platform.y).to_pixels() - platform_height.to_pixels(),
                 platform.width().to_pixels() as u32,
                 platform_height.to_pixels() as u32,
             ))?;
@@ -308,7 +313,7 @@ fn main() -> Result<(), String> {
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
         character_dst.set_x(state.x.to_pixels());
-        character_dst.set_y(base_y - (state.y - state.scroll_y).to_pixels());
+        character_dst.set_y(base_y - apply_scroll(state.y).to_pixels());
         canvas.copy_ex(
             &texture,
             Some(character_src),
