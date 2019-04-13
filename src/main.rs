@@ -236,11 +236,12 @@ fn main() -> Result<(), String> {
         canvas.clear();
 
         // Draw platforms.
-        canvas.set_draw_color(Color::RGB(80, 80, 80));
         let platform_height = 0.5;
+        let base_y = (height - sprite_tile_size * 4) as i32-platform_height.to_pixels();
+        canvas.set_draw_color(Color::RGB(80, 80, 80));
         for platform in state.board.platforms.iter() {
             canvas.fill_rect(Rect::new(platform.x.to_pixels(),
-                                       platform.y.to_pixels(),
+                                       (height as i32) - platform.y.to_pixels() - platform_height.to_pixels(),
                                        platform.width.to_pixels() as u32,
                                        platform_height.to_pixels() as u32))?;
         }
@@ -249,7 +250,7 @@ fn main() -> Result<(), String> {
         let frame_offset = 32 * ((state.x as i32) % frames_per_anim);
         character_src.set_x(frame_offset);
         character_dst.set_x(state.x.to_pixels());
-        character_dst.set_y((height - sprite_tile_size * 4) as i32 - state.y.to_pixels());
+        character_dst.set_y(base_y - state.y.to_pixels());
         canvas.copy_ex(
             &texture,
             Some(character_src),
