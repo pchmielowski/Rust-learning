@@ -51,7 +51,7 @@ pub mod lib {
         }
     }
 
-    #[derive(Clone, Copy, PartialEq)]
+    #[derive(PartialEq)]
     pub enum Direction {
         Forward,
         Backward,
@@ -62,7 +62,7 @@ pub mod lib {
     }
 
     impl Direction {
-        pub fn speed(self) -> Meters {
+        pub fn speed(&self) -> Meters {
             let speed: MetersPerSecond = 6.0;
             match self {
                 Direction::Forward => speed,
