@@ -4,7 +4,6 @@ pub mod lib {
     use std::cmp::Ordering;
     use std::f32::MIN;
 
-    #[derive(Clone, Copy)]
     pub struct Platform {
         pub    x_from: Meters,
         pub    x_to: Meters,
@@ -26,7 +25,7 @@ pub mod lib {
     }
 
     impl Platform {
-        pub fn width(self) -> Meters {
+        pub fn width(&self) -> Meters {
             self.x_to - self.x_from
         }
     }
@@ -152,8 +151,7 @@ pub mod lib {
             };
             let g = 9.81; // m/s^2
             let platform_below = self.platform_below();
-            let platform_on_left = self.platform_on_left()
-                .map_or(MIN, |platform| platform.x_to);
+            let platform_on_left = self.platform_on_left().unwrap_or(MIN);
             let x = (self.x + x_delta).max(platform_on_left);
             let y = (self.y + self.speed_y * seconds).max(platform_below);
             State {
@@ -165,7 +163,7 @@ pub mod lib {
             }
         }
 
-        pub fn platform_on_left(&self) -> Option<Platform> {
+        pub fn platform_on_left(&self) -> Option<Meters> {
             let x_to_ascending = |a: &&Platform, b: &&Platform|
                 b.x_to.partial_cmp(&a.x_to)
                     .unwrap_or(Ordering::Equal);
@@ -173,7 +171,7 @@ pub mod lib {
                 .filter(|platform| platform.y >= self.y)
                 .filter(|platform| platform.x_to <= self.x)
                 .max_by(x_to_ascending)
-                .map(|it| *it)
+                .map(|it| it.x_to)
         }
 
         pub fn platform_below(&self) -> Meters {
