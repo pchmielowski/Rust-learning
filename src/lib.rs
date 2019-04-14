@@ -164,24 +164,23 @@ pub mod lib {
         }
 
         pub fn platform_on_left(&self) -> Option<Meters> {
-            let x_to_ascending = |a: &&Platform, b: &&Platform|
-                b.x_to.partial_cmp(&a.x_to)
-                    .unwrap_or(Ordering::Equal);
             self.board.platforms.iter()
+                // Take into account platforms that are not below.
                 .filter(|platform| platform.y >= self.y)
                 .filter(|platform| platform.x_to <= self.x)
-                .max_by(x_to_ascending)
                 .map(|it| it.x_to)
+                // Get the closest one.
+                .max_by(|a, b| b.partial_cmp(a).unwrap_or(Ordering::Equal))
         }
 
         pub fn platform_below(&self) -> Meters {
-            let mut vec: Vec<Meters> = self.board.platforms.iter()
+            self.board.platforms.iter()
                 .filter(|platform| platform.x_from <= self.x && platform.x_to >= self.x)
                 .filter(|platform| platform.y <= self.y)
                 .map(|platform| platform.y)
-                .collect();
-            vec.sort_by(|a, b| b.partial_cmp(a).unwrap_or(Ordering::Equal));
-            *vec.first().ok_or("No ground below!").unwrap()
+                .max_by(|a, b| b.partial_cmp(a).unwrap_or(Ordering::Equal))
+                .ok_or("No ground below!")
+                .unwrap()
         }
     }
 
