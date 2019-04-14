@@ -166,13 +166,14 @@ pub mod lib {
         }
 
         pub fn platform_on_left(&self) -> Option<Platform> {
-            let mut vec: Vec<&Platform> = self.board.platforms.iter()
+            let x_to_ascending = |a: &&Platform, b: &&Platform|
+                b.x_to.partial_cmp(&a.x_to)
+                    .unwrap_or(Ordering::Equal);
+            self.board.platforms.iter()
                 .filter(|platform| platform.y >= self.y)
                 .filter(|platform| platform.x_to <= self.x)
-                .collect();
-            // TODO: Cleanup usage of & and * because I don't think it should be written this way.
-            vec.sort_by(|a, b| (**b).x_to.partial_cmp(&(**a).x_to).unwrap_or(Ordering::Equal));
-            vec.first().map(|platform| **platform)
+                .max_by(x_to_ascending)
+                .map(|it| *it)
         }
 
         pub fn platform_below(&self) -> Meters {
@@ -203,7 +204,7 @@ pub mod lib {
                     Platform { x_from: x - 2.0, x_to: x + 0.5, y: 1.5 },
                     Platform { x_from: x + 2.0, x_to: x + 7.5, y: 3.0 },
                 ],
-                coins: vec![]
+                coins: vec![],
             },
         };
         assert_eq!(state.platform_below(), 1.5);
