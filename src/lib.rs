@@ -178,7 +178,7 @@ pub mod lib {
                 .filter(|platform| platform.x_from <= self.x && platform.x_to >= self.x)
                 .filter(|platform| platform.y <= self.y)
                 .map(|platform| platform.y)
-                .max_by(|a, b| b.partial_cmp(a).unwrap_or(Ordering::Equal))
+                .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
                 .ok_or("No ground below!")
                 .unwrap()
         }
